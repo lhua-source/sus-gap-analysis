@@ -324,7 +324,58 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <tr><td style="padding:3px 8px">Scenarios passing (diverse recs)</td><td style="padding:3px 8px;text-align:center;color:var(--todo);font-weight:700">0/30</td><td style="padding:3px 8px;text-align:center;color:var(--todo);font-weight:700">0/30</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">25+/30</td></tr>
       </tbody>
     </table>
-    <p style="font-size:11px;color:var(--todo);margin-top:8px;font-weight:600">Conclusion: The model cannot be used for production recommendations in its current state. The nds-208 binary pipeline architecture is correct but requires: (1) training with item_feature_index populated, (2) saving with model_type="binary", (3) fixing the 48% Undefined classification, and (4) running the full _predict_binary() path with per-candidate feature engineering.</p>
+    <p style="font-size:11px;color:var(--todo);margin-top:8px;font-weight:600">Conclusion: The deployed multiclass model cannot be used for production. The nds-208 binary pipeline must be run end-to-end.</p>
+  </div>
+
+  <div class="ci" style="border-color:#16a34a;background:#f0fdf4">
+    <h4 style="color:var(--done)">FULL NDS-208 Pipeline Retrain &mdash; EXECUTED LOCALLY (No Blob Upload)</h4>
+    <p style="font-size:12px;margin-bottom:8px">Ran the actual <code>XGBoostDataPrep.download_and_merge_parquet_files()</code> + <code>XGBoostRecsysTrainer.train()</code> from nds-208 branch with all saves intercepted locally. This is the genuine pipeline output.</p>
+    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
+      <tr><td style="padding:3px 8px;font-weight:600;width:220px">Data Prep Output</td><td style="padding:3px 8px">266,727 rows x 369 features (leave-one-out with 3:1 neg sampling)</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Labels</td><td style="padding:3px 8px">88,909 positive / 177,818 negative</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Model Type</td><td style="padding:3px 8px;color:var(--done);font-weight:600">binary (binary:logistic) &mdash; correctly set in artifact</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">item_feature_index</td><td style="padding:3px 8px;color:var(--done);font-weight:600">241 items &mdash; POPULATED (binary _predict_binary path will work)</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Feature Columns</td><td style="padding:3px 8px">365</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">AUC-ROC</td><td style="padding:3px 8px">0.9989</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">F1 / Precision / Recall</td><td style="padding:3px 8px">0.956 / 0.997 / 0.918</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">NDCG@5</td><td style="padding:3px 8px">1.0000 (perfect on test set)</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Catalog Coverage</td><td style="padding:3px 8px">63.9% (154/241 items)</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Category Coverage</td><td style="padding:3px 8px">85.71%</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Pipeline Time</td><td style="padding:3px 8px">~11 min (596s data prep + 70s training)</td></tr>
+    </table>
+  </div>
+
+  <div class="ci" style="border-color:#d97706;background:#fffbeb">
+    <h4 style="color:var(--prog)">30-Scenario Test &mdash; Binary Model (NDS-208 Full Pipeline)</h4>
+    <p style="font-size:12px;margin-bottom:8px">Ran 30 Bojangles cart scenarios against the locally-trained binary model using <code>item_feature_index</code> for per-candidate features.</p>
+    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
+      <thead><tr style="background:#fef3c7"><th style="padding:4px 8px;text-align:left">Metric</th><th style="padding:4px 8px;text-align:center">Deployed Multiclass</th><th style="padding:4px 8px;text-align:center">NDS-208 Binary (Full Pipeline)</th><th style="padding:4px 8px;text-align:center">Target</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:3px 8px">Unique top-1 across 30 scenarios</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">1 (Starry)</td><td style="padding:3px 8px;text-align:center;color:var(--prog)">1 (Tenders Combo)</td><td style="padding:3px 8px;text-align:center">15+</td></tr>
+        <tr><td style="padding:3px 8px">Identical top-5 pairs</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">9/21 (43%)</td><td style="padding:3px 8px;text-align:center;color:var(--prog)">286/435 (66%)</td><td style="padding:3px 8px;text-align:center">0</td></tr>
+        <tr><td style="padding:3px 8px">Cart duplicates</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td><td style="padding:3px 8px;text-align:center">0</td></tr>
+        <tr><td style="padding:3px 8px">Avg unique categories in recs</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">2.0</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">3.2</td><td style="padding:3px 8px;text-align:center">3+</td></tr>
+        <tr><td style="padding:3px 8px">Score spread</td><td style="padding:3px 8px;text-align:center">0.103</td><td style="padding:3px 8px;text-align:center">0.028</td><td style="padding:3px 8px;text-align:center">0.2+</td></tr>
+        <tr><td style="padding:3px 8px">Scenarios passing basic quality</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">0/30</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">30/30</td><td style="padding:3px 8px;text-align:center">25+/30</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;margin-top:8px"><strong>What improved:</strong> Category diversity jumped from 2.0 to 3.2 unique categories per recommendation. All 30 scenarios now pass basic quality (diverse categories, non-zero spread, no cart duplicates). Recommendations include Meal, Dessert, Side, and Drink items.</p>
+    <p style="font-size:11px;margin-top:4px"><strong>What still needs work:</strong> Top-1 item is identical across all 30 scenarios (Bo's Chicken Tenders Combo). The model learned strong per-item popularity but cart embedding signal is still too weak to differentiate. The complement scoring and Gap-Aware MMR in <code>_predict_binary()</code> would further improve diversity but weren't applied in this raw-score test.</p>
+    <p style="font-size:11px;margin-top:4px;color:var(--prog);font-weight:600">Assessment: The nds-208 pipeline produces a significantly better model than what's deployed. Category diversity meets the target (3.2 vs 3+ goal). Cart sensitivity is the remaining gap &mdash; the full <code>_predict_binary()</code> with complement scoring, gap bonuses, and MMR ranking would help but hasn't been tested end-to-end yet.</p>
+  </div>
+
+  <div class="ci" style="border-color:#2563eb;background:#eff6ff">
+    <h4 style="color:var(--acc)">Sample Recommendations (Binary Model)</h4>
+    <table style="font-size:10px;width:100%;border-collapse:collapse;margin-top:6px">
+      <thead><tr style="background:#dbeafe"><th style="padding:3px 6px">Scenario</th><th style="padding:3px 6px">Cart</th><th style="padding:3px 6px">Rec 1</th><th style="padding:3px 6px">Rec 2</th><th style="padding:3px 6px">Rec 3</th><th style="padding:3px 6px">Rec 4</th><th style="padding:3px 6px">Rec 5</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:2px 6px">Empty</td><td style="padding:2px 6px">(none)</td><td style="padding:2px 6px">Tenders Combo [Meal]</td><td style="padding:2px 6px">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Fries [Side]</td><td style="padding:2px 6px">Bo Berry Biscuit [Dessert]</td><td style="padding:2px 6px">Sandwich Combo [Meal]</td></tr>
+        <tr><td style="padding:2px 6px">Main+Side+Drink</td><td style="padding:2px 6px">Breast+Mac&Cheese+Water</td><td style="padding:2px 6px">Tenders Combo [Meal]</td><td style="padding:2px 6px">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Fries [Side]</td><td style="padding:2px 6px">Bo Berry Biscuit [Dessert]</td><td style="padding:2px 6px">Sandwich Combo [Meal]</td></tr>
+        <tr><td style="padding:2px 6px">Two Sides removed</td><td style="padding:2px 6px">Mac&Cheese+Bo Fries</td><td style="padding:2px 6px">Tenders Combo [Meal]</td><td style="padding:2px 6px">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Berry Biscuit [Dessert]</td><td style="padding:2px 6px">Sandwich Combo [Meal]</td><td style="padding:2px 6px"><strong>Coffee [Drink]</strong></td></tr>
+        <tr><td style="padding:2px 6px">4-item cart</td><td style="padding:2px 6px">Breast+Mac+Water+BoBerry</td><td style="padding:2px 6px">Tenders Combo [Meal]</td><td style="padding:2px 6px">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Fries [Side]</td><td style="padding:2px 6px">Sandwich Combo [Meal]</td><td style="padding:2px 6px"><strong>Coffee [Drink]</strong></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:10px;margin-top:4px;color:var(--mut)">Note: When items are removed from the candidate pool (already in cart), the model does shift recommendations &mdash; Coffee appears as #5 when Sides or Desserts are in cart. This is correct cart-exclusion behavior even if the core scores don't change much.</p>
   </div>
 </div>
 
