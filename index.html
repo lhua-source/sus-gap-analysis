@@ -123,12 +123,16 @@ tr:hover{background:#f8fafc}
   <p class="note">Branch created from nds-208. Commit <span class="cr">5a2d4b7</span>: "fix: Handle non-numeric columns in _extract_cart_features_from_payload and dict collaborative_generator in _build_candidate_batch". Both bugs originated from Nikunj's commit <span class="cr">699323e</span> (Feb 24 2026) on nds-208. Neither exists on develop.</p>
 
   <table style="margin-top:12px">
-    <thead><tr><th>Bug</th><th>Location</th><th>Cause</th><th>Fix</th></tr></thead>
+    <thead><tr><th>Bug</th><th>Location</th><th>Cause</th><th>Fix</th><th>Commit</th></tr></thead>
     <tbody>
-      <tr><td><strong>1. nanmean on strings</strong></td><td><span class="cr">cpu_predict.py:1680</span></td><td><span class="cr">np.nanmean()</span> on string columns ('temperature':'75')</td><td><span class="cr">pd.to_numeric(errors='coerce')</span> before nanmean, skip non-convertible</td></tr>
-      <tr><td><strong>2. dict has no get_item_features</strong></td><td><span class="cr">cpu_predict.py:1641</span></td><td>collaborative_generator deserialized as dict, not object</td><td><span class="cr">hasattr</span> check, fallback to <span class="cr">item_feature_index</span></td></tr>
+      <tr><td><strong>1. nanmean on strings</strong></td><td><span class="cr">cpu_predict.py:1680</span></td><td><span class="cr">np.nanmean()</span> on string columns ('temperature':'75')</td><td><span class="cr">pd.to_numeric(errors='coerce')</span> before nanmean</td><td><span class="cr">5a2d4b7</span></td></tr>
+      <tr><td><strong>2. dict has no get_item_features</strong></td><td><span class="cr">cpu_predict.py:1641</span></td><td>collaborative_generator deserialized as dict, not object</td><td><span class="cr">hasattr</span> check, fallback to <span class="cr">item_feature_index</span></td><td><span class="cr">5a2d4b7</span></td></tr>
+      <tr><td><strong>3. available_items list/dict mismatch</strong></td><td><span class="cr">xgboost_model.py:188</span></td><td><span class="cr">_fetch_available_items_safe</span> returns [] on GMS error, but <span class="cr">_predict_binary</span> calls .values()/.items() expecting dict</td><td>Return {} instead of [], convert list to dict</td><td><span class="cr">ba13907</span></td></tr>
+      <tr><td><strong>4. object dtype in batch</strong></td><td><span class="cr">cpu_predict.py:1655</span></td><td><span class="cr">_build_candidate_batch</span> applies bucket weights before numeric conversion, XGBoost rejects object columns</td><td>Move <span class="cr">pd.to_numeric</span> BEFORE bucket weights multiplication</td><td><span class="cr">ba13907</span></td></tr>
     </tbody>
   </table>
+
+  <p class="note" style="margin-top:10px"><strong>func host start test:</strong> Ran locally with Python 3.11 venv on port 7072. Training succeeded (new binary model uploaded to blob: <span class="cr">202610_1772430524072-grubrgb.joblib</span>, AUC 0.999, item_feature_index: 75 items). But inference returned 0 recommendations because: (a) GMS returned 404 for available items, (b) Cosmos org pointer still references old multiclass model, (c) dtype bugs in the inference path. Bugs 3+4 fixed on <span class="cr">lawrence-cursor-branch</span> commit <span class="cr">ba13907</span>. Full end-to-end API test requires the Cosmos org pointer to reference the new binary model.</p>
 
   <h3 style="margin-top:18px">Before / After Comparison</h3>
   <table style="margin-top:8px">
