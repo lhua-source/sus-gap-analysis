@@ -275,6 +275,57 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     </ul>
     <p style="font-size:12px;margin-top:6px;font-weight:600;color:var(--acc)">Action Required: Train a binary model using the nds-208 pipeline, save with model_type="binary" and populated item_feature_index, then deploy.</p>
   </div>
+
+  <div class="ci" style="border-color:#dc2626">
+    <h4 style="color:var(--todo)">Binary Retrain Attempt &mdash; Also FAIL (Simplified Pipeline)</h4>
+    <p style="font-size:12px;margin-bottom:8px">Retrained a binary model locally using leave-one-out on the merged CSV (51,308 rows, 25% positive, NEG_PER_POS=3). Model metrics looked decent (AUC-ROC: 0.8795, F1: 0.6713), but 30-scenario test produced <strong>identical Side-only recommendations for all 30 carts</strong>.</p>
+    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
+      <tr><td style="padding:3px 8px;font-weight:600;width:200px">Binary AUC-ROC</td><td style="padding:3px 8px">0.8795</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Binary F1</td><td style="padding:3px 8px">0.6713 (Precision: 0.516, Recall: 0.960)</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">30-Scenario Result</td><td style="padding:3px 8px;color:var(--todo);font-weight:600">ALL 30 scenarios: Cole Slaw, Bo-Tato Rounds, Dirty Rice, Bo Fries, Garden Salad [all Side] at score 0.8261</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Unique top-1 items</td><td style="padding:3px 8px;color:var(--todo)">3 across 30 scenarios (only Side items)</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Score spread</td><td style="padding:3px 8px;color:var(--todo)">0.0000 (completely flat)</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Top feature by gain</td><td style="padding:3px 8px">is_base_item (1075), categoryid (525), item_category_llm (409)</td></tr>
+    </table>
+    <p style="font-size:11px;color:var(--todo);margin-top:8px;font-weight:600">Root Cause: Simplified test harness uses identical shared features for all candidates (only target_category_encoded differs). Without per-candidate embeddings from item_feature_index + collaborative_generator, the model just picks the highest base-rate category (Sides). The full nds-208 _predict_binary() builds unique feature vectors per candidate &mdash; but requires item_feature_index to be populated during training, which the current deployed model lacks.</p>
+  </div>
+
+  <div class="ci" style="border-color:#2563eb;background:#eff6ff">
+    <h4 style="color:var(--acc)">Data Inventory (What's Available in Blob)</h4>
+    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
+      <thead><tr style="background:#dbeafe"><th style="padding:4px 8px;text-align:left">Data Source</th><th style="padding:4px 8px;text-align:right">Files</th><th style="padding:4px 8px;text-align:left">Latest</th><th style="padding:4px 8px;text-align:left">Status</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:3px 8px">Transaction parquets (data-*.parquet)</td><td style="padding:3px 8px;text-align:right">60</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--done)">Available &mdash; 486 rows per week, 35 cols</td></tr>
+        <tr><td style="padding:3px 8px">Menu entity parquets</td><td style="padding:3px 8px;text-align:right">60</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--done)">Available</td></tr>
+        <tr><td style="padding:3px 8px">Weather parquets</td><td style="padding:3px 8px;text-align:right">60</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--done)">Available</td></tr>
+        <tr><td style="padding:3px 8px">Upsell analysis parquets</td><td style="padding:3px 8px;text-align:right">60</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--done)">Available</td></tr>
+        <tr><td style="padding:3px 8px">Location parquet</td><td style="padding:3px 8px;text-align:right">1</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--done)">Available</td></tr>
+        <tr><td style="padding:3px 8px">Frequent customers parquet</td><td style="padding:3px 8px;text-align:right">1</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--prog)">Available but only IDs &mdash; no profiles</td></tr>
+        <tr><td style="padding:3px 8px">Merged CSV (post-feature eng)</td><td style="padding:3px 8px;text-align:right">1</td><td style="padding:3px 8px">2026-02-28</td><td style="padding:3px 8px;color:var(--done)">71.3MB, 18,380 rows x 464 cols</td></tr>
+        <tr><td style="padding:3px 8px">Item embeddings (Word2Vec)</td><td style="padding:3px 8px;text-align:right">1</td><td style="padding:3px 8px">2026-02-28</td><td style="padding:3px 8px;color:var(--done)">865KB, 128-dim vectors</td></tr>
+        <tr><td style="padding:3px 8px">Category hierarchies JSON</td><td style="padding:3px 8px;text-align:right">1</td><td style="padding:3px 8px">2026-02-28</td><td style="padding:3px 8px;color:var(--done)">383KB</td></tr>
+        <tr><td style="padding:3px 8px">Location statistics</td><td style="padding:3px 8px;text-align:right">6 locs</td><td style="padding:3px 8px">2026-03-01</td><td style="padding:3px 8px;color:var(--done)">Per-location JSON + parquet</td></tr>
+        <tr><td style="padding:3px 8px">Trained models (XGBoost)</td><td style="padding:3px 8px;text-align:right">13</td><td style="padding:3px 8px">2026-02-28</td><td style="padding:3px 8px;color:var(--prog)">All multiclass. No binary model exists. No item_feature_index.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ci" style="border-color:#dc2626;background:#fff0f0">
+    <h4 style="color:var(--todo)">30-Scenario Test Results Summary</h4>
+    <p style="font-size:12px;margin-bottom:8px">Both models tested against 30 Bojangles cart scenarios. Neither produces cart-sensitive recommendations.</p>
+    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
+      <thead><tr style="background:#fee2e2"><th style="padding:4px 8px;text-align:left">Metric</th><th style="padding:4px 8px;text-align:center">Deployed Multiclass</th><th style="padding:4px 8px;text-align:center">Local Binary Retrain</th><th style="padding:4px 8px;text-align:center">Target</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:3px 8px">Unique top-1 across 30 scenarios</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">1 (Starry)</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">3 (all Sides)</td><td style="padding:3px 8px;text-align:center;color:var(--done)">15+</td></tr>
+        <tr><td style="padding:3px 8px">Identical top-5 pairs</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">9/21 (43%)</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">238/435 (55%)</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td></tr>
+        <tr><td style="padding:3px 8px">Cart duplicates</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td></tr>
+        <tr><td style="padding:3px 8px">Average unique categories in recs</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">2.0</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">1.0</td><td style="padding:3px 8px;text-align:center;color:var(--done)">3+</td></tr>
+        <tr><td style="padding:3px 8px">Score spread (top - bottom)</td><td style="padding:3px 8px;text-align:center;color:var(--prog)">0.103</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">0.000</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0.2+</td></tr>
+        <tr><td style="padding:3px 8px">Scenarios passing (diverse recs)</td><td style="padding:3px 8px;text-align:center;color:var(--todo);font-weight:700">0/30</td><td style="padding:3px 8px;text-align:center;color:var(--todo);font-weight:700">0/30</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">25+/30</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:var(--todo);margin-top:8px;font-weight:600">Conclusion: The model cannot be used for production recommendations in its current state. The nds-208 binary pipeline architecture is correct but requires: (1) training with item_feature_index populated, (2) saving with model_type="binary", (3) fixing the 48% Undefined classification, and (4) running the full _predict_binary() path with per-candidate feature engineering.</p>
+  </div>
 </div>
 
 <!-- OFFLINE JOBS -->
