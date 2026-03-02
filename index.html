@@ -99,7 +99,20 @@ tr:hover{background:#f8fafc}
     </tbody>
   </table>
 
-  <p class="note" style="margin-top:12px"><strong>Deployed model test (multiclass):</strong> 0/7 scenarios pass. Same top-5 for every cart (Starry, Bo's Chicken Biscuit, BBQ Sauce, Cole Slaw, Chocolate Milkshake). Score delta between empty cart and full cart: 0.00001. The model is a popularity predictor.</p>
+  <h3 style="margin-top:16px">Develop Branch Test Results (7 Scenarios, Multiclass Model)</h3>
+  <table style="margin-top:8px">
+    <thead><tr><th>Scenario</th><th>Cart</th><th>Top 5 Recommendations (all identical)</th><th>Pass?</th></tr></thead>
+    <tbody>
+      <tr><td>Empty cart</td><td>(empty)</td><td>Starry [Drink], Bo's Chicken Biscuit [Main], BBQ Sauce [Undef], Cole Slaw [Undef], Choc Milkshake [Dessert]</td><td style="color:var(--r)">FAIL</td></tr>
+      <tr><td>Single Main</td><td>Chicken Sandwich</td><td style="color:var(--r)">IDENTICAL to empty cart (delta: 0.00001)</td><td style="color:var(--r)">FAIL</td></tr>
+      <tr><td>Single Drink</td><td>Water</td><td style="color:var(--r)">IDENTICAL to empty cart</td><td style="color:var(--r)">FAIL</td></tr>
+      <tr><td>Main + Side</td><td>Sandwich + Cole Slaw</td><td>Starry, Bo's Biscuit, Cole Slaw [Undef], Choc Milkshake, Grilled Salad [Main]</td><td style="color:var(--r)">FAIL</td></tr>
+      <tr><td>Main+Side+Drink</td><td>Sandwich+Slaw+Water</td><td style="color:var(--r)">IDENTICAL to Main+Side</td><td style="color:var(--r)">FAIL</td></tr>
+      <tr><td>Two Mains</td><td>Sandwich + Salad</td><td style="color:var(--r)">IDENTICAL to Main+Side</td><td style="color:var(--r)">FAIL</td></tr>
+      <tr><td>Meal Combo</td><td>Sausage Biscuit</td><td style="color:var(--r)">IDENTICAL to empty cart</td><td style="color:var(--r)">FAIL</td></tr>
+      <tr class="sum-row"><td colspan="3" style="text-align:right">Result: 0/7 pass. Model is a popularity predictor. Cart has no effect on output.</td><td style="color:var(--r)">0/7</td></tr>
+    </tbody>
+  </table>
 </div>
 
 <!-- ============================================================ -->
@@ -218,6 +231,26 @@ tr:hover{background:#f8fafc}
       </tbody>
     </table>
   </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WHAT TO FIX NEXT -->
+<!-- ============================================================ -->
+<div class="bx" style="border:2px solid var(--r)">
+  <h3 style="color:var(--r)">What to Fix to Improve Results (Priority Order)</h3>
+  <table style="margin-top:8px">
+    <thead><tr><th>Priority</th><th>Ticket</th><th>Fix</th><th>Expected Impact</th></tr></thead>
+    <tbody>
+      <tr style="background:#fff0f0"><td><strong>P0</strong></td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-190">NDS-190</a></td><td><strong>Fix LLM classification: 48% of items are "Undefined".</strong> Bo-Tato Rounds, Dirty Rice, Mtn Dew, Pepsi, Chicken Sandwich Combo all misclassified. Reclassify all 66 Undefined items to correct categories.</td><td>Unlocks all category-dependent logic: complement scoring, gap bonuses, diversity rules, condiment filtering. Single biggest quality improvement available.</td></tr>
+      <tr style="background:#fff0f0"><td><strong>P1</strong></td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-248">NDS-248</a></td><td><strong>Increase cart embedding signal.</strong> 20% of scenario pairs still produce identical top-5. Cart embeddings have 42.9% feature importance in training but produce only 0.028 score spread at inference. Consider: increase NEG_PER_TXN from 3 to 6, add cart-candidate interaction features, tune scale_pos_weight.</td><td>More differentiated recommendations per cart. Target: unique top-1 from 5 to 15+, identical pairs from 20% to under 5%.</td></tr>
+      <tr style="background:#fff7f0"><td><strong>P2</strong></td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-211">NDS-211</a></td><td><strong>Make complement scores data-driven.</strong> Currently 64 hardcoded pairs in cpu_training.py. Build from actual Bojangles transaction co-occurrence data. Store in Cosmos tables for per-org customization.</td><td>Brand-specific pairings (biscuit+sweet tea) properly weighted. Removes developer dependency for rule changes.</td></tr>
+      <tr style="background:#fff7f0"><td><strong>P3</strong></td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-314">NDS-314</a></td><td><strong>Wire subTotal into the API.</strong> Add subTotal (string "125.50") to UpsellParameters. Use it for price-shock filtering so a $5 order doesn't see $12 premium items.</td><td>Price-appropriate recommendations. Prevents upsell rejection due to sticker shock.</td></tr>
+      <tr><td><strong>P4</strong></td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-237">NDS-237</a></td><td><strong>Add item weather tags.</strong> Per-item weather_tags (hot_weather, cold_weather). Use in training as features and at inference to filter weather-inappropriate items.</td><td>Weather-aware recs (iced tea on hot days, coffee on cold days). Currently weather = 0.5% of gain.</td></tr>
+      <tr><td><strong>P5</strong></td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-205">NDS-205</a></td><td><strong>Build customer profiles.</strong> Daily job computing 15 features per customer: order history, favorites, price sensitivity, temporal patterns, acceptance rate. Required for V3.</td><td>Personalized recommendations for returning customers. Enables dual-model architecture.</td></tr>
+      <tr><td><strong>P6</strong></td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-206">NDS-206</a></td><td><strong>Investigate why weather features have 0.5% gain.</strong> 34 weather features engineered but model barely uses them. Either the features lack signal, or the model needs weather-item interaction terms.</td><td>Justify or deprecate weather infrastructure investment. Currently wasted compute.</td></tr>
+    </tbody>
+  </table>
+  <p class="note" style="margin-top:10px">P0 (LLM classification) is the highest-leverage fix. With 48% of items in the wrong category, every downstream system that depends on categories -- complement scoring, gap bonuses, diversity ranking, condiment filtering -- is degraded. Fix this first, retrain, and retest.</p>
 </div>
 
 <div style="text-align:center;padding:20px;font-size:10px;color:var(--m)">
