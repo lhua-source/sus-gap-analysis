@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUS Gap Analysis — NDS-208 vs Full Architecture Spec</title>
+<style>
+:root{--done:#16a34a;--done-bg:#dcfce7;--prog:#d97706;--prog-bg:#fef3c7;--todo:#dc2626;--todo-bg:#fee2e2;--gap:#9333ea;--gap-bg:#f3e8ff;--bg:#f8fafc;--card:#fff;--bdr:#e2e8f0;--txt:#1e293b;--mut:#64748b;--head:#0f172a;--acc:#2563eb}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;font-size:14px}
+.ctr{max-width:1440px;margin:0 auto;padding:24px}
+.hdr{background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff;padding:40px 32px;border-radius:16px;margin-bottom:32px}
+.hdr h1{font-size:26px;font-weight:700;margin-bottom:6px}
+.hdr .sub{font-size:14px;opacity:.8;margin-bottom:16px}
+.hdr-meta{display:flex;gap:28px;flex-wrap:wrap;font-size:12px;opacity:.7}
+.hdr-meta strong{opacity:1}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px}
+.sc{background:var(--card);border-radius:12px;padding:18px;border:1px solid var(--bdr)}
+.sc .lb{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);font-weight:600;margin-bottom:2px}
+.sc .vl{font-size:30px;font-weight:700}
+.sc .dt{font-size:11px;color:var(--mut);margin-top:2px}
+.sc.d .vl{color:var(--done)}.sc.p .vl{color:var(--prog)}.sc.t .vl{color:var(--todo)}.sc.g .vl{color:var(--gap)}
+.pb-sec{background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--bdr);margin-bottom:28px}
+.pb-sec h3{font-size:13px;font-weight:600;margin-bottom:10px;color:var(--head)}
+.pb-row{margin-bottom:14px}
+.pb-row .pb-lbl{font-size:12px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between}
+.pb-bar{height:20px;background:#f1f5f9;border-radius:10px;overflow:hidden;display:flex}
+.pb-bar .s{height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
+.s.d{background:var(--done)}.s.pr{background:var(--prog)}.s.td{background:var(--todo)}
+.pb-leg{display:flex;gap:16px;font-size:11px;color:var(--mut);margin-top:8px}
+.pb-leg span::before{content:'';display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.pb-leg .ld::before{background:var(--done)}.pb-leg .lp::before{background:var(--prog)}.pb-leg .lt::before{background:var(--todo)}
+.sec{margin-bottom:28px}
+.sec-hdr{background:var(--card);border:1px solid var(--bdr);border-radius:12px 12px 0 0;padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.sec-hdr:hover{background:#f8fafc}
+.sec-hdr h2{font-size:16px;font-weight:700;color:var(--head)}
+.sec-hdr .meta{display:flex;gap:10px;align-items:center}
+.chv{font-size:16px;transition:transform .2s;color:var(--mut)}
+.sec.cl .chv{transform:rotate(-90deg)}.sec.cl .sec-body{display:none}
+.sec-body{border:1px solid var(--bdr);border-top:none;border-radius:0 0 12px 12px;overflow-x:auto}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:5px;font-size:10px;font-weight:600;white-space:nowrap}
+.bd{background:var(--done-bg);color:var(--done)}.bp{background:var(--prog-bg);color:var(--prog)}.bt{background:var(--todo-bg);color:var(--todo)}.bg{background:var(--gap-bg);color:var(--gap)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl thead{background:#f8fafc}
+.tbl th{padding:9px 12px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);border-bottom:1px solid var(--bdr);white-space:nowrap}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--bdr);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover{background:#f8fafc}
+.tk{font-weight:700;color:var(--acc);white-space:nowrap;font-size:11px}
+.tk a{color:var(--acc);text-decoration:none}.tk a:hover{text-decoration:underline}
+.ts{font-weight:500;max-width:260px}
+.tt{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;white-space:nowrap}
+.tt-s{background:#dbeafe;color:#1d4ed8}.tt-t{background:#e0e7ff;color:#4338ca}.tt-b{background:#fee2e2;color:#dc2626}.tt-st{background:#f1f5f9;color:#475569}.tt-e{background:#f3e8ff;color:#7c3aed}.tt-j{background:#fef3c7;color:#92400e}
+.gc{font-size:11px;color:var(--mut);max-width:340px}
+.gt{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:600;margin-right:3px}
+.gt-c{background:#fee2e2;color:#dc2626}.gt-m{background:#fef3c7;color:#d97706}.gt-n{background:#dcfce7;color:#16a34a}.gt-i{background:#dbeafe;color:#2563eb}
+.cr{font-family:'Cascadia Code','Fira Code',monospace;font-size:10px;background:#f1f5f9;padding:1px 4px;border-radius:3px;color:#475569}
+.crit-sec{background:var(--card);border:2px solid #fca5a5;border-radius:12px;padding:22px;margin-bottom:28px}
+.crit-sec h3{color:var(--todo);font-size:15px;margin-bottom:14px}
+.ci{padding:14px;background:#fff7f7;border-radius:8px;margin-bottom:10px;border-left:4px solid var(--todo)}
+.ci:last-child{margin-bottom:0}
+.ci h4{font-size:13px;margin-bottom:5px;color:var(--head)}
+.ci .sp,.ci .cu,.ci .im{font-size:11px;margin-bottom:3px}
+.ci .sp{color:var(--mut)}.ci .cu{color:var(--txt)}.ci .im{color:var(--todo);font-weight:500}
+.perf{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:22px;margin-bottom:28px}
+.perf h3{font-size:15px;color:var(--head);margin-bottom:14px}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pc{padding:14px;border-radius:8px}
+.pc.go{background:#f0fdf4;border:1px solid #bbf7d0}.pc.ri{background:#fff7ed;border:1px solid #fed7aa}
+.pc h4{font-size:12px;font-weight:600;margin-bottom:6px}
+.pc.go h4{color:var(--done)}.pc.ri h4{color:var(--prog)}
+.pc ul{font-size:11px;padding-left:16px}.pc li{margin-bottom:3px}
+.fb{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
+.fb label{font-size:12px;font-weight:600;color:var(--head);margin-right:2px}
+.fbtn{padding:5px 12px;border:1px solid var(--bdr);border-radius:7px;background:var(--card);font-size:11px;cursor:pointer;font-weight:500;transition:all .15s}
+.fbtn:hover{border-color:var(--acc);color:var(--acc)}
+.fbtn.a{background:var(--acc);color:#fff;border-color:var(--acc)}
+.arch-box{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:22px;margin-bottom:28px}
+.arch-box h3{font-size:15px;color:var(--head);margin-bottom:4px}
+.arch-box .arch-sub{font-size:12px;color:var(--mut);margin-bottom:16px}
+.arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.arch-card{padding:12px;border-radius:8px;border:1px solid var(--bdr)}
+.arch-card h5{font-size:12px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.arch-card ul{font-size:11px;color:var(--mut);padding-left:16px}
+.arch-card li{margin-bottom:2px}
+@media(max-width:900px){.pg,.arch-grid{grid-template-columns:1fr}.sg{grid-template-columns:repeat(2,1fr)}}
+@media print{.fb{display:none}.sec.cl .sec-body{display:block!important}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="ctr">
+
+<div class="hdr">
+  <h1>Smart Upsells (SUS) &mdash; Comprehensive Gap Analysis</h1>
+  <div class="sub">NDS-208 / Develop Branch Implementation vs Full Confluence Architecture Spec (V1 / V2 / V3)</div>
+  <div class="hdr-meta">
+    <span>Branch: <strong>develop + nds-208</strong></span>
+    <span>Generated: <strong>2026-03-01</strong></span>
+    <span>Source: <strong>Jira NDS + Confluence Architecture Doc + Google Docs</strong></span>
+    <span>Test Target: <strong>Bojangles Waxhaw (loc-26335157)</strong></span>
+  </div>
+</div>
+
+<!-- SUMMARY CARDS -->
+<div class="sg">
+  <div class="sc d"><div class="lb">Offline Jobs Implemented</div><div class="vl">4 / 6</div><div class="dt">Jobs 1,2,4,6 complete. Job 3,5b missing.</div></div>
+  <div class="sc d"><div class="lb">Online Inference Steps</div><div class="vl">5 / 5</div><div class="dt">Full pipeline: Context&rarr;Filter&rarr;Features&rarr;Score&rarr;Rank</div></div>
+  <div class="sc p"><div class="lb">Config Pages (Backend)</div><div class="vl">2 / 4</div><div class="dt">Training + Evaluation. Missing: Tuning, Assignment</div></div>
+  <div class="sc t"><div class="lb">Critical Gaps</div><div class="vl">5</div><div class="dt">Directly impact recommendation quality</div></div>
+  <div class="sc d"><div class="lb">V2 Core Pipeline</div><div class="vl">68%</div><div class="dt">Guest pipeline mostly done</div></div>
+  <div class="sc t"><div class="lb">V3 Known Guest</div><div class="vl">10%</div><div class="dt">Customer profiles + modifiers not started</div></div>
+</div>
+
+<!-- PROGRESS BARS -->
+<div class="pb-sec">
+  <h3>Implementation Progress by Phase</h3>
+  <div class="pb-row"><div class="pb-lbl"><span>Phase 1 (V1) &mdash; Foundation Pipelines</span><span>90%</span></div><div class="pb-bar"><div class="s d" style="width:90%">90%</div><div class="s pr" style="width:5%"></div><div class="s td" style="width:5%"></div></div></div>
+  <div class="pb-row"><div class="pb-lbl"><span>Phase 2 (V2) &mdash; Guest Enhancements</span><span>68%</span></div><div class="pb-bar"><div class="s d" style="width:68%">68%</div><div class="s pr" style="width:12%"></div><div class="s td" style="width:20%">20%</div></div></div>
+  <div class="pb-row"><div class="pb-lbl"><span>Phase 3 (V3) &mdash; Known Guest + Modifiers</span><span>10%</span></div><div class="pb-bar"><div class="s d" style="width:10%">10%</div><div class="s pr" style="width:15%">15%</div><div class="s td" style="width:75%">75%</div></div></div>
+  <div class="pb-leg"><span class="ld">Implemented</span><span class="lp">Partial</span><span class="lt">Not Started</span></div>
+</div>
+
+<!-- ARCHITECTURE COMPONENTS -->
+<div class="arch-box">
+  <h3>Adaptive Ensemble Recommender &mdash; Component Status</h3>
+  <div class="arch-sub">From Confluence: "CORE COMPONENTS (Always Active)" and "ADAPTIVE COMPONENTS (Conditionally Active)"</div>
+  <div class="arch-grid">
+    <div class="arch-card">
+      <h5>Core Components (Always Active) <span class="badge bd">4/5</span></h5>
+      <ul>
+        <li><span class="badge bd" style="font-size:9px">DONE</span> Content-Based Filtering &mdash; <span class="cr">CollaborativeFeatureGenerator</span> Word2Vec 128-dim, cosine similarity</li>
+        <li><span class="badge bd" style="font-size:9px">DONE</span> Collaborative Filtering (Population) &mdash; Co-occurrence matrix, lift scores in <span class="cr">collaborative_features.py</span></li>
+        <li><span class="badge bd" style="font-size:9px">DONE</span> Context-Aware Filtering &mdash; <span class="cr">EnhancedFeatureEngineering</span> temporal + weather + location</li>
+        <li><span class="badge bd" style="font-size:9px">DONE</span> Knowledge-Based Rules &mdash; <span class="cr">CandidateFilter</span> 5-stage business rules (NDS-213)</li>
+        <li><span class="badge bp" style="font-size:9px">PARTIAL</span> Session-Based Filtering &mdash; Cart analysis via <span class="cr">OrderContextService.analyze_cart()</span>. Missing: browsing history, click context</li>
+      </ul>
+    </div>
+    <div class="arch-card">
+      <h5>Adaptive Components (Known Customers) <span class="badge bt" style="font-size:9px">0/4</span></h5>
+      <ul>
+        <li><span class="badge bt" style="font-size:9px">MISSING</span> Personal Collaborative Filtering &mdash; No individual co-purchase patterns</li>
+        <li><span class="badge bt" style="font-size:9px">MISSING</span> Individual Preference Model &mdash; No favorites, never-ordered, diversity</li>
+        <li><span class="badge bt" style="font-size:9px">MISSING</span> Customer Pattern Recognition &mdash; No temporal patterns, price sensitivity, lifecycle</li>
+        <li><span class="badge bt" style="font-size:9px">MISSING</span> Personal History Matching &mdash; No acceptance/rejection fed back into model</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CRITICAL GAPS -->
+<div class="crit-sec">
+  <h3>&#9888; Critical Gaps Impacting Recommendation Quality</h3>
+  <div class="ci">
+    <h4>1. Job 3: Customer Profile Updates &mdash; NOT STARTED (NDS-205)</h4>
+    <div class="sp"><strong>Confluence Spec:</strong> Nightly at 4 AM. Per customer: purchase history (total orders, LTV, avg order value, recency), preferences (top 5-10 items, favorite categories, never-ordered, diversity score), behavioral patterns (preferred hours, days, locations), recommendation engagement (acceptance rate, last accepted/rejected), segmentation (price sensitivity, segment, lifecycle, risk). Output: customer_profiles cached in Redis + persisted to DB.</div>
+    <div class="cu"><strong>Current Code:</strong> <span class="cr">frequentcustomerid</span> is label-encoded as a single integer. No profile computation, no Redis cache, no nightly job. <span class="cr">frequentcustomers.parquet</span> loaded but only used for the ID.</div>
+    <div class="im"><strong>Impact:</strong> 0/15 customer features. Known customers get population-level recs identical to guests. All V3 personalization blocked. Dual-model architecture impossible.</div>
+  </div>
+  <div class="ci">
+    <h4>2. Job 5b: Dual Model Training &mdash; Only Guest Model Exists (NDS-208)</h4>
+    <div class="sp"><strong>Confluence Spec:</strong> Dual Models (Recommended): Guest Model (45 features) + Personalized Model (60 features with 15 customer features including order_count, lifetime_value, avg_order_value, days_since_last, favorite_items, favorite_categories, never_ordered_items, item_diversity_score, price_sensitivity, acceptance_rate, preferred_hours, preferred_days).</div>
+    <div class="cu"><strong>Current Code:</strong> Single <span class="cr">XGBoostRecsysTrainer</span> trains one binary model on all orders. No model split by guest vs known. No 15 customer features.</div>
+    <div class="im"><strong>Impact:</strong> No personalized model for known customers. Model cannot learn customer-specific patterns.</div>
+  </div>
+  <div class="ci">
+    <h4>3. Category Hierarchies Not Materialized (NDS-211)</h4>
+    <div class="sp"><strong>Confluence Spec (Job 4):</strong> "Build category hierarchies with Complementarity rules." Jira: Two Cosmos tables (Rules + Metadata), weekly builder job. Rules: CategoryId, RuleType, CategoryList[], Strengths[], Soft_limit. Metadata: TotalItems, price stats, PriceBuckets, ItemIDs[], RecommendCategories[], UpsellPath[], NeedsCategory[].</div>
+    <div class="cu"><strong>Current Code:</strong> Complement scores hardcoded in <span class="cr">cpu_training.py calculate_category_complement_scores()</span> (~100 lines). Category limits scattered across 3 config objects with different values. No Cosmos tables, no per-org customization.</div>
+    <div class="im"><strong>Impact:</strong> Rules cannot be tuned per brand without code changes. Bojangles pairings not captured. Inconsistent limits across configs.</div>
+  </div>
+  <div class="ci">
+    <h4>4. Item Weather Tags Missing (NDS-237)</h4>
+    <div class="sp"><strong>Confluence Spec (Job 4):</strong> Extract item attributes including dietary tags. NDS-237: Per-item <span class="cr">weather_tags: ['hot_weather', 'warm_weather']</span>, <span class="cr">temperature_affinity</span>. Used in Training AND Inference to filter weather-inappropriate items.</div>
+    <div class="cu"><strong>Current Code:</strong> Weather features at order-level only: <span class="cr">weather_temperature_c</span>, <span class="cr">weather_comfort_score</span>. No per-item weather affinity.</div>
+    <div class="im"><strong>Impact:</strong> On a 95&deg;F Waxhaw day, iced tea and hot coffee get identical weather signals. No item-level weather awareness.</div>
+  </div>
+  <div class="ci">
+    <h4>5. Cold Start (LLM) &mdash; Not Integrated in Pipeline</h4>
+    <div class="sp"><strong>Confluence Spec:</strong> Cold Start for new locations: LLM classifies items, uses Menu Items + Classifications + Weather + Daypart + Basket as input. Auto-transition to XGBoost at volume threshold.</div>
+    <div class="cu"><strong>Current Code:</strong> <span class="cr">LlmRecommendationModel</span> exists and factory routes to it. But auto-transition and threshold logic not wired.</div>
+    <div class="im"><strong>Impact:</strong> New locations cannot get recommendations until XGBoost model is trained.</div>
+  </div>
+</div>
+
+<!-- OFFLINE JOBS -->
+<div class="sec" id="sec-offline">
+  <div class="sec-hdr" onclick="tog('sec-offline')">
+    <h2>Offline Data Preparation &mdash; 6 Background Jobs</h2>
+    <div class="meta"><span class="badge bd">4 Done</span><span class="badge bp">1 Partial</span><span class="badge bt">1 Missing</span><span class="chv">&#9660;</span></div>
+  </div>
+  <div class="sec-body">
+    <table class="tbl">
+      <thead><tr><th>Job</th><th>Name</th><th>Schedule</th><th>Jira</th><th>Code Status</th><th>Code Reference</th><th>Gap Analysis</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Job 1</strong></td><td class="ts">Collaborative Filtering Computation</td><td>Nightly 2 AM</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-214">NDS-214</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">collaborative_features.py</span> &mdash; Word2Vec 128-dim, co-occurrence, lift, similarity. Output: <span class="cr">item_embeddings.pkl</span></td><td class="gc"><span class="gt gt-n">No Gap</span> All specified outputs implemented.</td></tr>
+        <tr><td><strong>Job 2</strong></td><td class="ts">Location Statistics Computation</td><td>Nightly 3 AM</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-204">NDS-204</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">location_statistics_service.py</span> &mdash; 11 columns, 13mo data, daily. <span class="cr">location-statistics-*.parquet</span></td><td class="gc"><span class="gt gt-n">No Gap</span> All 11 columns from spec present.</td></tr>
+        <tr style="background:#fff7f7"><td><strong>Job 3</strong></td><td class="ts">Customer Profile Updates</td><td>Nightly 4 AM</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-205">NDS-205</a></td><td><span class="badge bt">Not Started</span></td><td class="gc"><span class="cr">frequentcustomers.parquet</span> loaded but only ID used. No profiles, no Redis, no nightly job.</td><td class="gc"><span class="gt gt-c">CRITICAL</span> 0/15 customer features. Blocks all V3.</td></tr>
+        <tr><td><strong>Job 4</strong></td><td class="ts">Content-Based Feature Computation</td><td>Weekly Sun 12 AM</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-210">NDS-210</a>, <a href="https://grubbrr.atlassian.net/browse/NDS-211">NDS-211</a></td><td><span class="badge bp">Partial</span></td><td class="gc">Embeddings + similarity + attributes: DONE. Category hierarchies: hardcoded only. Item weather tags: MISSING.</td><td class="gc"><span class="gt gt-m">Moderate</span> NDS-211 and NDS-237 not materialized.</td></tr>
+        <tr><td><strong>Job 5</strong></td><td class="ts">Model Training</td><td>Weekly Sun 1 AM</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-208">NDS-208</a></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="cr">XGBoostTrainingPipeline</span> &mdash; Guest model done (45 features). Personalized model missing (15 customer features).</td><td class="gc"><span class="gt gt-m">Moderate</span> Dual Model architecture not implemented.</td></tr>
+        <tr><td><strong>Job 6</strong></td><td class="ts">Weather Cache Updates</td><td>Every 30 min</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-206">NDS-206</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">weather_repository.py</span> + <span class="cr">weather_updater.py</span>. Per-location, derived features.</td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ONLINE INFERENCE -->
+<div class="sec" id="sec-online">
+  <div class="sec-hdr" onclick="tog('sec-online')">
+    <h2>Online Real-Time Inference &mdash; 5 Pipeline Steps</h2>
+    <div class="meta"><span class="badge bd">5 Done</span><span class="chv">&#9660;</span></div>
+  </div>
+  <div class="sec-body">
+    <table class="tbl">
+      <thead><tr><th>Step</th><th>Name</th><th>Jira</th><th>Code Status</th><th>Code Reference</th><th>Gap Analysis</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Step 1</strong></td><td class="ts">Extract Order Context</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-212">NDS-212</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">OrderContextService</span>: temporal, cart, weather, guest context.</td><td class="gc"><span class="gt gt-n">No Gap</span> for guest. Missing: customer history, subTotal (NDS-314).</td></tr>
+        <tr><td><strong>Step 2</strong></td><td class="ts">Candidate Items (Business Rules)</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-213">NDS-213</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">CandidateFilter</span> 5 stages: cart, availability, channel, segment, business.</td><td class="gc"><span class="gt gt-n">No Gap</span> All 5 stages match spec.</td></tr>
+        <tr><td><strong>Step 3</strong></td><td class="ts">Engineer Features</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-214">NDS-214</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">_build_candidate_batch()</span>: temporal + weather + location + cart + collaborative.</td><td class="gc"><span class="gt gt-n">No Gap</span> for guest. Missing 15 customer features.</td></tr>
+        <tr><td><strong>Step 4</strong></td><td class="ts">Score Model</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-215">NDS-215</a></td><td><span class="badge bd">Complete</span></td><td class="gc">XGBoost <span class="cr">predict_proba</span> + complement + completeness + embedding_sim + daypart_boost.</td><td class="gc"><span class="gt gt-n">No Gap</span> Ensemble approach as spec.</td></tr>
+        <tr><td><strong>Step 5</strong></td><td class="ts">Ranking &amp; Diversity</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-216">NDS-216</a></td><td><span class="badge bd">Complete</span></td><td class="gc">Gap-Aware MMR (&lambda;=0.7), gap bonuses, category limits, must-include slots.</td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CONFIG PAGES -->
+<div class="sec" id="sec-config">
+  <div class="sec-hdr" onclick="tog('sec-config')">
+    <h2>Smart Upsells Configuration &mdash; Pages &amp; Features</h2>
+    <div class="meta"><span class="badge bd">6</span><span class="badge bp">3</span><span class="badge bt">5</span><span class="chv">&#9660;</span></div>
+  </div>
+  <div class="sec-body">
+    <table class="tbl">
+      <thead><tr><th>Feature</th><th>Source</th><th>Status</th><th>Gap</th></tr></thead>
+      <tbody>
+        <tr><td class="ts">Feature Flag (Org level)</td><td>Confluence</td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr><td class="ts">Cold Start Switch</td><td>Confluence</td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> LLM model exists. Auto-transition not wired.</td></tr>
+        <tr><td class="ts">Training Frequency</td><td>Confluence</td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr><td class="ts">Confidence Threshold</td><td>Confluence + NDS-199</td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-i">Minor</span> Needs UI change to "Top N" (1-10).</td></tr>
+        <tr><td class="ts">Model Selector</td><td>Confluence</td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr><td class="ts">Train Model Now</td><td>Confluence</td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr><td class="ts">Training History</td><td>Confluence</td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-i">Minor</span> NDS-96: timestamp bug.</td></tr>
+        <tr><td class="ts">Model Tuning (Enterprise)</td><td>Confluence</td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> Finetuner exists but disabled.</td></tr>
+        <tr><td class="ts">Model Assignment (Enterprise)</td><td>Confluence</td><td><span class="badge bt">Not Started</span></td><td class="gc"><span class="gt gt-m">Moderate</span> No per-location model assignment.</td></tr>
+        <tr><td class="ts">Evaluation &mdash; Summary Tab</td><td>Confluence + NDS-184</td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> BE done. Missing UI wiring.</td></tr>
+        <tr><td class="ts">Evaluation &mdash; Detailed Tab</td><td>Confluence + NDS-184</td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> BE done. Missing UI views.</td></tr>
+        <tr><td class="ts">subTotal + orderType in API</td><td>NDS-314</td><td><span class="badge bt">Not Started</span></td><td class="gc"><span class="gt gt-c">CRITICAL</span> Missing from UpsellParameters.</td></tr>
+        <tr><td class="ts">Modifier Recommendations</td><td>NDS-255</td><td><span class="badge bt">Not Started</span></td><td class="gc"><span class="gt gt-m">Moderate</span> No modifier model.</td></tr>
+        <tr><td class="ts">Nav: "Smart Upsells" rename</td><td>NDS-199</td><td><span class="badge bt">Not Started</span></td><td class="gc"><span class="gt gt-i">Minor</span> NDS-252 revert bug.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PERFORMANCE -->
+<div class="perf">
+  <h3>Performance Assessment &mdash; Bojangles Waxhaw Test Readiness</h3>
+  <div class="pg">
+    <div class="pc go">
+      <h4>Should Work Well (Strengths)</h4>
+      <ul>
+        <li><strong>Full V2 Guest Pipeline</strong> &mdash; 5/5 online inference steps</li>
+        <li><strong>7 parquet data sources</strong> &mdash; transactions, menu, location, upsell analysis, weather, customers, location stats</li>
+        <li><strong>Word2Vec embeddings</strong> &mdash; 128-dim captures co-purchase patterns</li>
+        <li><strong>NDS-213 filtering</strong> &mdash; 5-stage candidate reduction</li>
+        <li><strong>NDS-216 Gap-Aware MMR</strong> &mdash; drink/side/dessert diversity</li>
+        <li><strong>Condiment control</strong> &mdash; keyword filter + max 1 (NDS-273/275)</li>
+        <li><strong>Temporal awareness</strong> &mdash; cyclical encoding, daypart flags</li>
+        <li><strong>Weather features</strong> &mdash; comfort, temp buckets, food/drink suggestions</li>
+        <li><strong>ECM support</strong> &mdash; location-specific available items (NDS-226)</li>
+        <li><strong>Diagnostics</strong> &mdash; debug_pipeline + evaluate_model_quality</li>
+      </ul>
+    </div>
+    <div class="pc ri">
+      <h4>Likely Problem Areas (Risks)</h4>
+      <ul>
+        <li><strong>Same recs regardless of cart</strong> &mdash; if cart embeddings have low importance (NDS-248)</li>
+        <li><strong>No weather-item affinity</strong> &mdash; can't prefer iced tea on hot days</li>
+        <li><strong>Hardcoded complement scores</strong> &mdash; may not match Bojangles patterns</li>
+        <li><strong>Low negative sampling</strong> &mdash; NEG_PER_TXN=2 causes popularity bias</li>
+        <li><strong>Feature NaN at 40%</strong> &mdash; reduced signal strength</li>
+        <li><strong>No customer personalization</strong> &mdash; population-level only</li>
+        <li><strong>No subTotal in API</strong> &mdash; no price appropriateness</li>
+        <li><strong>Cold Start not wired</strong> &mdash; new locations blocked</li>
+        <li><strong>Category limit inconsistency</strong> &mdash; 3 configs, different values</li>
+        <li><strong>Finetuning disabled</strong> &mdash; default hyperparameters only</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="fb">
+  <label>Filter:</label>
+  <button class="fbtn a" onclick="ft('all')">All Tickets</button>
+  <button class="fbtn" onclick="ft('done')">Implemented</button>
+  <button class="fbtn" onclick="ft('partial')">Partial</button>
+  <button class="fbtn" onclick="ft('missing')">Not Started</button>
+  <button class="fbtn" onclick="ft('critical')">Critical Gaps</button>
+</div>
+
+<!-- V2 TICKETS -->
+<div class="sec" id="sec-v2">
+  <div class="sec-hdr" onclick="tog('sec-v2')">
+    <h2>V2 Jira Tickets &mdash; Guest Enhancements (NDS-201)</h2>
+    <div class="meta"><span class="badge bd">14 Done</span><span class="badge bp">2 Partial</span><span class="badge bt">4 Missing</span><span class="chv">&#9660;</span></div>
+  </div>
+  <div class="sec-body">
+    <table class="tbl">
+      <thead><tr><th>Key</th><th>Summary</th><th>Type</th><th>Jira</th><th>Code</th><th>Gap</th></tr></thead>
+      <tbody>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-204">NDS-204</a></td><td class="ts">Create Location Statistics</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-206">NDS-206</a></td><td class="ts">Hourly Weather Cache</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-208">NDS-208</a></td><td class="ts">Train Model (weekly)</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-210">NDS-210</a></td><td class="ts">Item Attributes</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-212">NDS-212</a></td><td class="ts">Extract Order Context</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-213">NDS-213</a></td><td class="ts">Candidate Items (Business Rules)</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-214">NDS-214</a></td><td class="ts">Engineer Features</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-215">NDS-215</a></td><td class="ts">Score Model</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-216">NDS-216</a></td><td class="ts">Ranking &amp; Diversity</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-226">NDS-226</a></td><td class="ts">ECM Support</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-234">NDS-234</a></td><td class="ts">Training Dataset</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-273">NDS-273</a></td><td class="ts">Condiment Category</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bp">QA</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-267">NDS-267</a></td><td class="ts">DataStorage ETL</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-242">NDS-242</a></td><td class="ts">Eval UI Update</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="partial" data-c="1"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-211">NDS-211</a></td><td class="ts">Category Hierarchies</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-c">CRITICAL</span> Hardcoded only. No Cosmos tables.</td></tr>
+        <tr data-i="partial"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-248">NDS-248</a></td><td class="ts">Same recs bug</td><td><span class="tt tt-b">Bug</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> Needs Waxhaw validation.</td></tr>
+        <tr data-i="missing" data-c="1"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-237">NDS-237</a></td><td class="ts">Item Weather Tags</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-c">CRITICAL</span> No per-item weather affinity.</td></tr>
+        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-150">NDS-150</a></td><td class="ts">Review biases</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-m">Moderate</span></td></tr>
+        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-120">NDS-120</a></td><td class="ts">Feedback Loop</td><td><span class="tt tt-t">Task</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
+        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-89">NDS-89</a></td><td class="ts">More weather params</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- V3 TICKETS -->
+<div class="sec" id="sec-v3">
+  <div class="sec-hdr" onclick="tog('sec-v3')">
+    <h2>V3 Jira Tickets &mdash; Known Guest + Modifiers (NDS-202)</h2>
+    <div class="meta"><span class="badge bd">3 Done</span><span class="badge bp">4 Partial</span><span class="badge bt">8 Missing</span><span class="chv">&#9660;</span></div>
+  </div>
+  <div class="sec-body">
+    <table class="tbl">
+      <thead><tr><th>Key</th><th>Summary</th><th>Type</th><th>Jira</th><th>Code</th><th>Gap</th></tr></thead>
+      <tbody>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-301">NDS-301</a></td><td class="ts">Backend Subtasks (BE-1 to BE-17)</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bd">Done</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-312">NDS-312</a></td><td class="ts">BE-Model Training page</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bd">Done</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-275">NDS-275</a></td><td class="ts">Condiment limit in ML</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bd">Done</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr data-i="partial"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-294">NDS-294</a></td><td class="ts">Review ML Implementation</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bp">IN DEV</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> Current review task.</td></tr>
+        <tr data-i="partial"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-184">NDS-184</a></td><td class="ts">Model Evaluation (Summary + Detail)</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> BE done. UI not wired.</td></tr>
+        <tr data-i="partial"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-190">NDS-190</a></td><td class="ts">LLM Classification + HITL</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> GMS classification works. HITL feedback missing.</td></tr>
+        <tr data-i="partial"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-199">NDS-199</a></td><td class="ts">UI Cleanup (9 ACs)</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
+        <tr data-i="missing" data-c="1"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-205">NDS-205</a></td><td class="ts">Customer Profiles</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-c">CRITICAL</span> 0/15 customer features. Blocks V3.</td></tr>
+        <tr data-i="missing" data-c="1"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-314">NDS-314</a></td><td class="ts">Cart total + Order type in API</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bt">To Do</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-c">CRITICAL</span> subTotal + orderType missing.</td></tr>
+        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-255">NDS-255</a></td><td class="ts">Modifier Recommendations</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-m">Moderate</span></td></tr>
+        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-259">NDS-259</a></td><td class="ts">HITL for Modifiers</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bt">To Do</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
+        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-264">NDS-264</a></td><td class="ts">Modifier Rec Service</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bt">To Do</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
+        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-251">NDS-251</a></td><td class="ts">Category Relevance dynamic text</td><td><span class="tt tt-b">Bug</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
+        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-252">NDS-252</a></td><td class="ts">Smart Upsells name reverts</td><td><span class="tt tt-b">Bug</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
+        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-271">NDS-271</a></td><td class="ts">EST completion time</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="text-align:center;padding:32px;font-size:11px;color:var(--mut)">
+  SUS Gap Analysis &mdash; Generated 2026-03-01 &mdash; grubbrr/grubbrr-sus-service &mdash; Branch: develop + nds-208
+</div>
+
+</div>
+<script>
+function tog(id){document.getElementById(id).classList.toggle('cl')}
+function ft(t){document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('a'));event.target.classList.add('a');document.querySelectorAll('.tbl tbody tr').forEach(r=>{const i=r.getAttribute('data-i'),c=r.getAttribute('data-c');if(t==='all'){r.style.display='';return}if(t==='done'&&i==='done'){r.style.display='';return}if(t==='partial'&&i==='partial'){r.style.display='';return}if(t==='missing'&&i==='missing'){r.style.display='';return}if(t==='critical'&&c==='1'){r.style.display='';return}r.style.display='none'})}
+</script>
+</body>
+</html>
