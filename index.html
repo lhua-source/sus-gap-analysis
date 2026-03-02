@@ -3,658 +3,229 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SUS Gap Analysis — NDS-208 vs Full Architecture Spec (with Live Test Results)</title>
+<title>SUS Gap Analysis</title>
 <style>
-:root{--done:#16a34a;--done-bg:#dcfce7;--prog:#d97706;--prog-bg:#fef3c7;--todo:#dc2626;--todo-bg:#fee2e2;--gap:#9333ea;--gap-bg:#f3e8ff;--bg:#f8fafc;--card:#fff;--bdr:#e2e8f0;--txt:#1e293b;--mut:#64748b;--head:#0f172a;--acc:#2563eb}
+:root{--g:#16a34a;--gbg:#dcfce7;--y:#d97706;--ybg:#fef3c7;--r:#dc2626;--rbg:#fee2e2;--p:#7c3aed;--pbg:#f3e8ff;--b:#2563eb;--bg:#f8fafc;--c:#fff;--bd:#e2e8f0;--t:#1e293b;--m:#64748b;--h:#0f172a}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;font-size:14px}
-.ctr{max-width:1440px;margin:0 auto;padding:24px}
-.hdr{background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff;padding:40px 32px;border-radius:16px;margin-bottom:32px}
-.hdr h1{font-size:26px;font-weight:700;margin-bottom:6px}
-.hdr .sub{font-size:14px;opacity:.8;margin-bottom:16px}
-.hdr-meta{display:flex;gap:28px;flex-wrap:wrap;font-size:12px;opacity:.7}
-.hdr-meta strong{opacity:1}
-.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px}
-.sc{background:var(--card);border-radius:12px;padding:18px;border:1px solid var(--bdr)}
-.sc .lb{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);font-weight:600;margin-bottom:2px}
-.sc .vl{font-size:30px;font-weight:700}
-.sc .dt{font-size:11px;color:var(--mut);margin-top:2px}
-.sc.d .vl{color:var(--done)}.sc.p .vl{color:var(--prog)}.sc.t .vl{color:var(--todo)}.sc.g .vl{color:var(--gap)}
-.pb-sec{background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--bdr);margin-bottom:28px}
-.pb-sec h3{font-size:13px;font-weight:600;margin-bottom:10px;color:var(--head)}
-.pb-row{margin-bottom:14px}
-.pb-row .pb-lbl{font-size:12px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between}
-.pb-bar{height:20px;background:#f1f5f9;border-radius:10px;overflow:hidden;display:flex}
-.pb-bar .s{height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
-.s.d{background:var(--done)}.s.pr{background:var(--prog)}.s.td{background:var(--todo)}
-.pb-leg{display:flex;gap:16px;font-size:11px;color:var(--mut);margin-top:8px}
-.pb-leg span::before{content:'';display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
-.pb-leg .ld::before{background:var(--done)}.pb-leg .lp::before{background:var(--prog)}.pb-leg .lt::before{background:var(--todo)}
-.sec{margin-bottom:28px}
-.sec-hdr{background:var(--card);border:1px solid var(--bdr);border-radius:12px 12px 0 0;padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
-.sec-hdr:hover{background:#f8fafc}
-.sec-hdr h2{font-size:16px;font-weight:700;color:var(--head)}
-.sec-hdr .meta{display:flex;gap:10px;align-items:center}
-.chv{font-size:16px;transition:transform .2s;color:var(--mut)}
-.sec.cl .chv{transform:rotate(-90deg)}.sec.cl .sec-body{display:none}
-.sec-body{border:1px solid var(--bdr);border-top:none;border-radius:0 0 12px 12px;overflow-x:auto}
-.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:5px;font-size:10px;font-weight:600;white-space:nowrap}
-.bd{background:var(--done-bg);color:var(--done)}.bp{background:var(--prog-bg);color:var(--prog)}.bt{background:var(--todo-bg);color:var(--todo)}.bg{background:var(--gap-bg);color:var(--gap)}
-.tbl{width:100%;border-collapse:collapse;font-size:12px}
-.tbl thead{background:#f8fafc}
-.tbl th{padding:9px 12px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);border-bottom:1px solid var(--bdr);white-space:nowrap}
-.tbl td{padding:10px 12px;border-bottom:1px solid var(--bdr);vertical-align:top}
-.tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover{background:#f8fafc}
-.tk{font-weight:700;color:var(--acc);white-space:nowrap;font-size:11px}
-.tk a{color:var(--acc);text-decoration:none}.tk a:hover{text-decoration:underline}
-.ts{font-weight:500;max-width:260px}
-.tt{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;white-space:nowrap}
-.tt-s{background:#dbeafe;color:#1d4ed8}.tt-t{background:#e0e7ff;color:#4338ca}.tt-b{background:#fee2e2;color:#dc2626}.tt-st{background:#f1f5f9;color:#475569}.tt-e{background:#f3e8ff;color:#7c3aed}.tt-j{background:#fef3c7;color:#92400e}
-.gc{font-size:11px;color:var(--mut);max-width:340px}
-.gt{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:600;margin-right:3px}
-.gt-c{background:#fee2e2;color:#dc2626}.gt-m{background:#fef3c7;color:#d97706}.gt-n{background:#dcfce7;color:#16a34a}.gt-i{background:#dbeafe;color:#2563eb}
-.cr{font-family:'Cascadia Code','Fira Code',monospace;font-size:10px;background:#f1f5f9;padding:1px 4px;border-radius:3px;color:#475569}
-.crit-sec{background:var(--card);border:2px solid #fca5a5;border-radius:12px;padding:22px;margin-bottom:28px}
-.crit-sec h3{color:var(--todo);font-size:15px;margin-bottom:14px}
-.ci{padding:14px;background:#fff7f7;border-radius:8px;margin-bottom:10px;border-left:4px solid var(--todo)}
-.ci:last-child{margin-bottom:0}
-.ci h4{font-size:13px;margin-bottom:5px;color:var(--head)}
-.ci .sp,.ci .cu,.ci .im{font-size:11px;margin-bottom:3px}
-.ci .sp{color:var(--mut)}.ci .cu{color:var(--txt)}.ci .im{color:var(--todo);font-weight:500}
-.perf{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:22px;margin-bottom:28px}
-.perf h3{font-size:15px;color:var(--head);margin-bottom:14px}
-.pg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.pc{padding:14px;border-radius:8px}
-.pc.go{background:#f0fdf4;border:1px solid #bbf7d0}.pc.ri{background:#fff7ed;border:1px solid #fed7aa}
-.pc h4{font-size:12px;font-weight:600;margin-bottom:6px}
-.pc.go h4{color:var(--done)}.pc.ri h4{color:var(--prog)}
-.pc ul{font-size:11px;padding-left:16px}.pc li{margin-bottom:3px}
-.fb{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
-.fb label{font-size:12px;font-weight:600;color:var(--head);margin-right:2px}
-.fbtn{padding:5px 12px;border:1px solid var(--bdr);border-radius:7px;background:var(--card);font-size:11px;cursor:pointer;font-weight:500;transition:all .15s}
-.fbtn:hover{border-color:var(--acc);color:var(--acc)}
-.fbtn.a{background:var(--acc);color:#fff;border-color:var(--acc)}
-.arch-box{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:22px;margin-bottom:28px}
-.arch-box h3{font-size:15px;color:var(--head);margin-bottom:4px}
-.arch-box .arch-sub{font-size:12px;color:var(--mut);margin-bottom:16px}
-.arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.arch-card{padding:12px;border-radius:8px;border:1px solid var(--bdr)}
-.arch-card h5{font-size:12px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
-.arch-card ul{font-size:11px;color:var(--mut);padding-left:16px}
-.arch-card li{margin-bottom:2px}
-@media(max-width:900px){.pg,.arch-grid{grid-template-columns:1fr}.sg{grid-template-columns:repeat(2,1fr)}}
-@media print{.fb{display:none}.sec.cl .sec-body{display:block!important}body{background:#fff}}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--t);line-height:1.55;font-size:13px}
+.w{max-width:1400px;margin:0 auto;padding:20px}
+.hd{background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff;padding:32px 28px;border-radius:14px;margin-bottom:24px}
+.hd h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.hd .sub{font-size:13px;opacity:.75;margin-bottom:12px}
+.hd-m{display:flex;gap:24px;flex-wrap:wrap;font-size:11px;opacity:.65}
+.hd-m strong{opacity:1}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:22px}
+.sc{background:var(--c);border-radius:10px;padding:14px;border:1px solid var(--bd)}
+.sc .l{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--m);font-weight:600}
+.sc .v{font-size:26px;font-weight:700;margin:2px 0}
+.sc .d{font-size:10px;color:var(--m)}
+.vg .v{color:var(--g)}.vy .v{color:var(--y)}.vr .v{color:var(--r)}
+.sec{margin-bottom:22px}
+.sh{background:var(--c);border:1px solid var(--bd);border-radius:10px 10px 0 0;padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.sh:hover{background:#f8fafc}
+.sh h2{font-size:15px;font-weight:700;color:var(--h)}
+.sh .mx{display:flex;gap:8px;align-items:center}
+.ch{font-size:14px;color:var(--m);transition:transform .2s}
+.sec.cl .ch{transform:rotate(-90deg)}.sec.cl .sb{display:none}
+.sb{border:1px solid var(--bd);border-top:none;border-radius:0 0 10px 10px;overflow-x:auto}
+.bx{background:var(--c);border:1px solid var(--bd);border-radius:10px;padding:18px;margin-bottom:22px}
+.bx h3{font-size:14px;font-weight:700;color:var(--h);margin-bottom:10px}
+.badge{display:inline-flex;padding:2px 8px;border-radius:5px;font-size:9px;font-weight:600;white-space:nowrap}
+.bd{background:var(--gbg);color:var(--g)}.bp{background:var(--ybg);color:var(--y)}.bt{background:var(--rbg);color:var(--r)}.bb{background:#dbeafe;color:var(--b)}.bpp{background:var(--pbg);color:var(--p)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 10px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--m);border-bottom:1px solid var(--bd);background:#f8fafc;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--bd);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover{background:#f8fafc}
+.tk{font-weight:700;color:var(--b);font-size:11px;white-space:nowrap}
+.tk a{color:var(--b);text-decoration:none}.tk a:hover{text-decoration:underline}
+.cr{font-family:'Cascadia Code',monospace;font-size:10px;background:#f1f5f9;padding:1px 4px;border-radius:3px;color:#475569}
+.pb{height:18px;background:#f1f5f9;border-radius:9px;overflow:hidden;display:flex;margin-bottom:10px}
+.pb .s{height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#fff}
+.s.sd{background:var(--g)}.s.sy{background:var(--y)}.s.sr{background:var(--r)}
+.note{font-size:11px;color:var(--m);padding:10px 14px;background:#f8fafc;border-radius:8px;border-left:3px solid var(--bd);margin:10px 0}
+.sum-row{background:#f1f5f9;font-weight:600}
+@media(max-width:900px){.sg{grid-template-columns:repeat(2,1fr)}}
+@media print{.sec.cl .sb{display:block!important}}
 </style>
 </head>
 <body>
-<div class="ctr">
+<div class="w">
 
-<div class="hdr">
-  <h1>Smart Upsells (SUS) &mdash; Comprehensive Gap Analysis</h1>
-  <div class="sub">NDS-208 / Develop Branch Implementation vs Full Confluence Architecture Spec (V1 / V2 / V3)</div>
-  <div class="hdr-meta">
-    <span>Branch: <strong>develop + nds-208</strong></span>
-    <span>Generated: <strong>2026-03-02</strong> (updated with live test results)</span>
-    <span>Source: <strong>Jira NDS + Confluence Architecture Doc + Google Docs</strong></span>
-    <span>Test Target: <strong>Bojangles Waxhaw (loc-26335157)</strong></span>
+<!-- HEADER -->
+<div class="hd">
+  <h1>Smart Upsells (SUS) &mdash; Gap Analysis</h1>
+  <div class="sub">Develop branch baseline, lawrence-cursor-branch fixes, 30-scenario test results</div>
+  <div class="hd-m">
+    <span>Baseline: <strong>develop</strong></span>
+    <span>Fix branch: <strong>lawrence-cursor-branch</strong></span>
+    <span>Date: <strong>2026-03-02</strong></span>
+    <span>Target: <strong>Bojangles Waxhaw</strong></span>
   </div>
 </div>
 
-<!-- SUMMARY CARDS -->
+<!-- KPIs -->
 <div class="sg">
-  <div class="sc d"><div class="lb">Offline Jobs Implemented</div><div class="vl">4 / 6</div><div class="dt">Jobs 1,2,4,6 complete. Job 3,5b missing.</div></div>
-  <div class="sc d"><div class="lb">Online Inference Steps</div><div class="vl">5 / 5</div><div class="dt">Full pipeline: Context&rarr;Filter&rarr;Features&rarr;Score&rarr;Rank</div></div>
-  <div class="sc p"><div class="lb">Config Pages (Backend)</div><div class="vl">2 / 4</div><div class="dt">Training + Evaluation. Missing: Tuning, Assignment</div></div>
-  <div class="sc t"><div class="lb">Critical Gaps</div><div class="vl">5</div><div class="dt">Directly impact recommendation quality</div></div>
-  <div class="sc d"><div class="lb">V2 Core Pipeline</div><div class="vl">68%</div><div class="dt">Guest pipeline mostly done</div></div>
-  <div class="sc t"><div class="lb">V3 Known Guest</div><div class="vl">10%</div><div class="dt">Customer profiles + modifiers not started</div></div>
+  <div class="sc vg"><div class="l">Develop: V1 Pipeline</div><div class="v">90%</div><div class="d">Multiclass training + inference</div></div>
+  <div class="sc vy"><div class="l">Develop: V2 Guest</div><div class="v">35%</div><div class="d">No binary path, no NDS-213/216</div></div>
+  <div class="sc vr"><div class="l">Develop: V3 Known Guest</div><div class="v">5%</div><div class="d">No customer profiles, no modifiers</div></div>
+  <div class="sc vg"><div class="l">After Fix: Scenarios Pass</div><div class="v">29/30</div><div class="d">lawrence-cursor-branch</div></div>
+  <div class="sc vy"><div class="l">After Fix: Unique Top-1</div><div class="v">5</div><div class="d">Target: 15+</div></div>
+  <div class="sc vr"><div class="l">Item Classification</div><div class="v">48% Undef</div><div class="d">Biggest quality blocker</div></div>
 </div>
 
-<!-- PROGRESS BARS -->
-<div class="pb-sec">
-  <h3>Implementation Progress by Phase</h3>
-  <div class="pb-row"><div class="pb-lbl"><span>Phase 1 (V1) &mdash; Foundation Pipelines</span><span>90%</span></div><div class="pb-bar"><div class="s d" style="width:90%">90%</div><div class="s pr" style="width:5%"></div><div class="s td" style="width:5%"></div></div></div>
-  <div class="pb-row"><div class="pb-lbl"><span>Phase 2 (V2) &mdash; Guest Enhancements</span><span>68%</span></div><div class="pb-bar"><div class="s d" style="width:68%">68%</div><div class="s pr" style="width:12%"></div><div class="s td" style="width:20%">20%</div></div></div>
-  <div class="pb-row"><div class="pb-lbl"><span>Phase 3 (V3) &mdash; Known Guest + Modifiers</span><span>10%</span></div><div class="pb-bar"><div class="s d" style="width:10%">10%</div><div class="s pr" style="width:15%">15%</div><div class="s td" style="width:75%">75%</div></div></div>
-  <div class="pb-leg"><span class="ld">Implemented</span><span class="lp">Partial</span><span class="lt">Not Started</span></div>
-</div>
+<!-- ============================================================ -->
+<!-- SECTION 1: AS-IS ARCHITECTURE (DEVELOP) -->
+<!-- ============================================================ -->
+<div class="bx" style="border:2px solid var(--bd)">
+  <h3>Section 1: As-Is Architecture (develop branch)</h3>
+  <p class="note">The <strong>develop</strong> branch is the production baseline. It has a multiclass XGBoost model (<span class="cr">multi:softprob</span>, 133 classes) trained via <span class="cr">training.py</span>. It does NOT have the binary pipeline, candidate filtering, ranking/diversity, or complement scoring from nds-208.</p>
 
-<!-- ARCHITECTURE COMPONENTS -->
-<div class="arch-box">
-  <h3>Adaptive Ensemble Recommender &mdash; Component Status</h3>
-  <div class="arch-sub">From Confluence: "CORE COMPONENTS (Always Active)" and "ADAPTIVE COMPONENTS (Conditionally Active)"</div>
-  <div class="arch-grid">
-    <div class="arch-card">
-      <h5>Core Components (Always Active) <span class="badge bd">4/5</span></h5>
-      <ul>
-        <li><span class="badge bd" style="font-size:9px">DONE</span> Content-Based Filtering &mdash; <span class="cr">CollaborativeFeatureGenerator</span> Word2Vec 128-dim, cosine similarity</li>
-        <li><span class="badge bd" style="font-size:9px">DONE</span> Collaborative Filtering (Population) &mdash; Co-occurrence matrix, lift scores in <span class="cr">collaborative_features.py</span></li>
-        <li><span class="badge bd" style="font-size:9px">DONE</span> Context-Aware Filtering &mdash; <span class="cr">EnhancedFeatureEngineering</span> temporal + weather + location</li>
-        <li><span class="badge bd" style="font-size:9px">DONE</span> Knowledge-Based Rules &mdash; <span class="cr">CandidateFilter</span> 5-stage business rules (NDS-213)</li>
-        <li><span class="badge bp" style="font-size:9px">PARTIAL</span> Session-Based Filtering &mdash; Cart analysis via <span class="cr">OrderContextService.analyze_cart()</span>. Missing: browsing history, click context</li>
-      </ul>
-    </div>
-    <div class="arch-card">
-      <h5>Adaptive Components (Known Customers) <span class="badge bt" style="font-size:9px">0/4</span></h5>
-      <ul>
-        <li><span class="badge bt" style="font-size:9px">MISSING</span> Personal Collaborative Filtering &mdash; No individual co-purchase patterns</li>
-        <li><span class="badge bt" style="font-size:9px">MISSING</span> Individual Preference Model &mdash; No favorites, never-ordered, diversity</li>
-        <li><span class="badge bt" style="font-size:9px">MISSING</span> Customer Pattern Recognition &mdash; No temporal patterns, price sensitivity, lifecycle</li>
-        <li><span class="badge bt" style="font-size:9px">MISSING</span> Personal History Matching &mdash; No acceptance/rejection fed back into model</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<!-- CRITICAL GAPS -->
-<div class="crit-sec">
-  <h3>&#9888; Critical Gaps Impacting Recommendation Quality</h3>
-  <div class="ci">
-    <h4>1. Job 3: Customer Profile Updates &mdash; NOT STARTED (NDS-205)</h4>
-    <div class="sp"><strong>Confluence Spec:</strong> Nightly at 4 AM. Per customer: purchase history (total orders, LTV, avg order value, recency), preferences (top 5-10 items, favorite categories, never-ordered, diversity score), behavioral patterns (preferred hours, days, locations), recommendation engagement (acceptance rate, last accepted/rejected), segmentation (price sensitivity, segment, lifecycle, risk). Output: customer_profiles cached in Redis + persisted to DB.</div>
-    <div class="cu"><strong>Current Code:</strong> <span class="cr">frequentcustomerid</span> is label-encoded as a single integer. No profile computation, no Redis cache, no nightly job. <span class="cr">frequentcustomers.parquet</span> loaded but only used for the ID.</div>
-    <div class="im"><strong>Impact:</strong> 0/15 customer features. Known customers get population-level recs identical to guests. All V3 personalization blocked. Dual-model architecture impossible.</div>
-  </div>
-  <div class="ci">
-    <h4>2. Job 5b: Dual Model Training &mdash; Only Guest Model Exists (NDS-208)</h4>
-    <div class="sp"><strong>Confluence Spec:</strong> Dual Models (Recommended): Guest Model (45 features) + Personalized Model (60 features with 15 customer features including order_count, lifetime_value, avg_order_value, days_since_last, favorite_items, favorite_categories, never_ordered_items, item_diversity_score, price_sensitivity, acceptance_rate, preferred_hours, preferred_days).</div>
-    <div class="cu"><strong>Current Code:</strong> Single <span class="cr">XGBoostRecsysTrainer</span> trains one binary model on all orders. No model split by guest vs known. No 15 customer features.</div>
-    <div class="im"><strong>Impact:</strong> No personalized model for known customers. Model cannot learn customer-specific patterns.</div>
-  </div>
-  <div class="ci">
-    <h4>3. Category Hierarchies Not Materialized (NDS-211)</h4>
-    <div class="sp"><strong>Confluence Spec (Job 4):</strong> "Build category hierarchies with Complementarity rules." Jira: Two Cosmos tables (Rules + Metadata), weekly builder job. Rules: CategoryId, RuleType, CategoryList[], Strengths[], Soft_limit. Metadata: TotalItems, price stats, PriceBuckets, ItemIDs[], RecommendCategories[], UpsellPath[], NeedsCategory[].</div>
-    <div class="cu"><strong>Current Code:</strong> Complement scores hardcoded in <span class="cr">cpu_training.py calculate_category_complement_scores()</span> (~100 lines). Category limits scattered across 3 config objects with different values. No Cosmos tables, no per-org customization.</div>
-    <div class="im"><strong>Impact:</strong> Rules cannot be tuned per brand without code changes. Bojangles pairings not captured. Inconsistent limits across configs.</div>
-  </div>
-  <div class="ci">
-    <h4>4. Item Weather Tags Missing (NDS-237)</h4>
-    <div class="sp"><strong>Confluence Spec (Job 4):</strong> Extract item attributes including dietary tags. NDS-237: Per-item <span class="cr">weather_tags: ['hot_weather', 'warm_weather']</span>, <span class="cr">temperature_affinity</span>. Used in Training AND Inference to filter weather-inappropriate items.</div>
-    <div class="cu"><strong>Current Code:</strong> Weather features at order-level only: <span class="cr">weather_temperature_c</span>, <span class="cr">weather_comfort_score</span>. No per-item weather affinity.</div>
-    <div class="im"><strong>Impact:</strong> On a 95&deg;F Waxhaw day, iced tea and hot coffee get identical weather signals. No item-level weather awareness.</div>
-  </div>
-  <div class="ci">
-    <h4>5. Cold Start (LLM) &mdash; Not Integrated in Pipeline</h4>
-    <div class="sp"><strong>Confluence Spec:</strong> Cold Start for new locations: LLM classifies items, uses Menu Items + Classifications + Weather + Daypart + Basket as input. Auto-transition to XGBoost at volume threshold.</div>
-    <div class="cu"><strong>Current Code:</strong> <span class="cr">LlmRecommendationModel</span> exists and factory routes to it. But auto-transition and threshold logic not wired.</div>
-    <div class="im"><strong>Impact:</strong> New locations cannot get recommendations until XGBoost model is trained.</div>
-  </div>
-</div>
-
-<!-- ======================== LIVE TEST RESULTS ======================== -->
-<div class="crit-sec" style="border-color:#7c3aed;background:#faf5ff">
-  <h3 style="color:#7c3aed">&#128300; Live Test Results &mdash; Bojangles Waxhaw Model (Feb 28 2026)</h3>
-  <p style="font-size:12px;color:var(--mut);margin-bottom:16px">
-    Tested against latest deployed model: <code>202609_1772288379507-grubrgb.joblib</code> (23.5MB, trained 2026-02-28).
-    Model loaded from Azure Blob and run locally against 7 cart scenarios.
-  </p>
-
-  <div class="ci" style="border-color:#7c3aed;background:#f5f0ff">
-    <h4>Model Identity</h4>
-    <table style="font-size:12px;width:100%;border-collapse:collapse;margin-top:6px">
-      <tr><td style="padding:3px 8px;font-weight:600;width:220px">Objective</td><td style="padding:3px 8px"><code>multi:softprob</code> (133-class multiclass) &mdash; NOT binary</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Features</td><td style="padding:3px 8px">335 features</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Training Rows</td><td style="padding:3px 8px">18,380</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Catalog Items</td><td style="padding:3px 8px">137 (across 133 model classes + Other)</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Trees</td><td style="padding:3px 8px">200 (max_depth=4)</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">model_type key</td><td style="padding:3px 8px;color:var(--todo);font-weight:600">NOT PRESENT &rarr; defaults to "multiclass" &rarr; binary _predict_binary() path NEVER invoked</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">item_feature_index</td><td style="padding:3px 8px;color:var(--todo);font-weight:600">EMPTY (0 items) &rarr; binary path has no candidate data</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Hit Rate@5</td><td style="padding:3px 8px">40.4% (passes threshold)</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">NDCG@5</td><td style="padding:3px 8px">0.28 (passes threshold)</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Same-Category Violation</td><td style="padding:3px 8px;color:var(--todo);font-weight:600">77.3% (fails diversity)</td></tr>
-    </table>
-  </div>
-
-  <div class="ci" style="border-color:#dc2626">
-    <h4 style="color:var(--todo)">TEST RESULT: Cart Diversity &mdash; FAIL</h4>
-    <p style="font-size:12px;margin-bottom:8px">7 cart scenarios tested. <strong>9 out of 21 pairs produced IDENTICAL top-5 recommendations.</strong> The model is essentially a popularity predictor.</p>
-    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
-      <thead><tr style="background:#fee2e2"><th style="padding:4px 8px;text-align:left">Cart Scenario</th><th style="padding:4px 8px;text-align:left">Top 5 Recommendations</th><th style="padding:4px 8px">Score Range</th></tr></thead>
-      <tbody>
-        <tr><td style="padding:4px 8px;font-weight:600">Empty Cart</td><td style="padding:4px 8px">Starry [Drink], Bo's Chicken Biscuit [Main], BBQ Sauce [Undefined], Cole Slaw [Undefined], Chocolate Milkshake [Dessert]</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.103</td></tr>
-        <tr style="background:#fff7f7"><td style="padding:4px 8px;font-weight:600">Single Main (Chicken Sandwich)</td><td style="padding:4px 8px;color:var(--todo)">IDENTICAL to Empty Cart (scores differ by 0.00001)</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.103</td></tr>
-        <tr style="background:#fff7f7"><td style="padding:4px 8px;font-weight:600">Single Drink (Water)</td><td style="padding:4px 8px;color:var(--todo)">IDENTICAL to Empty Cart</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.103</td></tr>
-        <tr><td style="padding:4px 8px;font-weight:600">Main + Side</td><td style="padding:4px 8px">Starry [Drink], Bo's Chicken Biscuit [Main], Cole Slaw [Undefined], Choc Milkshake [Dessert], Grilled Chicken Salad [Main]</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.105</td></tr>
-        <tr style="background:#fff7f7"><td style="padding:4px 8px;font-weight:600">Main + Side + Drink</td><td style="padding:4px 8px;color:var(--todo)">IDENTICAL to Main + Side</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.104</td></tr>
-        <tr style="background:#fff7f7"><td style="padding:4px 8px;font-weight:600">Two Mains</td><td style="padding:4px 8px;color:var(--todo)">IDENTICAL to Main + Side</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.105</td></tr>
-        <tr style="background:#fff7f7"><td style="padding:4px 8px;font-weight:600">Meal Combo</td><td style="padding:4px 8px;color:var(--todo)">IDENTICAL to Empty Cart</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.103</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:11px;color:var(--todo);margin-top:8px;font-weight:600">Root Cause: Multiclass model predicts P(item=class_j | features). With 133 classes and cart embeddings contributing only marginal signal, the model converges to population-level item popularity regardless of cart contents.</p>
-  </div>
-
-  <div class="ci" style="border-color:#d97706">
-    <h4 style="color:var(--prog)">Feature Importance Analysis</h4>
-    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
-      <thead><tr style="background:#fef3c7"><th style="padding:4px 8px;text-align:left">Feature Category</th><th style="padding:4px 8px;text-align:right">% of Total Gain</th><th style="padding:4px 8px;text-align:left">Assessment</th></tr></thead>
-      <tbody>
-        <tr><td style="padding:3px 8px">Cart features (cart_embedding_*, cart_popularity_*)</td><td style="padding:3px 8px;text-align:right;font-weight:600">42.9%</td><td style="padding:3px 8px;color:var(--done)">High importance in training &mdash; but multiclass objective dilutes the signal at inference</td></tr>
-        <tr><td style="padding:3px 8px">Collaborative features (embeddings, co-occurrence)</td><td style="padding:3px 8px;text-align:right;font-weight:600">42.9%</td><td style="padding:3px 8px;color:var(--done)">High &mdash; embeddings capture item relationships</td></tr>
-        <tr><td style="padding:3px 8px">Other (category, upsell stats, price)</td><td style="padding:3px 8px;text-align:right;font-weight:600">13.1%</td><td style="padding:3px 8px">Moderate</td></tr>
-        <tr><td style="padding:3px 8px">Temporal features (hour, daypart, cyclical)</td><td style="padding:3px 8px;text-align:right;font-weight:600;color:var(--todo)">0.7%</td><td style="padding:3px 8px;color:var(--todo)">Negligible &mdash; daypart has almost no influence</td></tr>
-        <tr><td style="padding:3px 8px">Weather features (temp, humidity, comfort)</td><td style="padding:3px 8px;text-align:right;font-weight:600;color:var(--todo)">0.5%</td><td style="padding:3px 8px;color:var(--todo)">Negligible &mdash; weather investment not paying off in model</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:11px;margin-top:6px">Top 5 features by gain: cart_popularity_max (64.3), upsell_is_average (62.8), item_category_llm_0 (41.5), item_category_llm_5 (38.0), item_category_llm_3 (27.7)</p>
-  </div>
-
-  <div class="ci" style="border-color:#dc2626">
-    <h4 style="color:var(--todo)">Item Classification Breakdown &mdash; 48% Undefined</h4>
-    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
-      <thead><tr style="background:#fee2e2"><th style="padding:4px 8px;text-align:left">Category</th><th style="padding:4px 8px;text-align:right">Count</th><th style="padding:4px 8px;text-align:right">%</th><th style="padding:4px 8px;text-align:left">Assessment</th></tr></thead>
-      <tbody>
-        <tr style="background:#fff7f7"><td style="padding:3px 8px;font-weight:600;color:var(--todo)">Undefined</td><td style="padding:3px 8px;text-align:right;font-weight:700;color:var(--todo)">66</td><td style="padding:3px 8px;text-align:right;color:var(--todo)">48.2%</td><td style="padding:3px 8px;color:var(--todo)">CRITICAL &mdash; includes Bo-Tato Rounds, Bo's Chicken Sandwich Combo, Mtn Dew, Pepsi, BBQ Sauce, etc.</td></tr>
-        <tr><td style="padding:3px 8px">Drink</td><td style="padding:3px 8px;text-align:right">19</td><td style="padding:3px 8px;text-align:right">13.9%</td><td style="padding:3px 8px">OK</td></tr>
-        <tr><td style="padding:3px 8px">Meal</td><td style="padding:3px 8px;text-align:right">16</td><td style="padding:3px 8px;text-align:right">11.7%</td><td style="padding:3px 8px">OK</td></tr>
-        <tr><td style="padding:3px 8px">Main</td><td style="padding:3px 8px;text-align:right">13</td><td style="padding:3px 8px;text-align:right">9.5%</td><td style="padding:3px 8px">OK</td></tr>
-        <tr><td style="padding:3px 8px">Side</td><td style="padding:3px 8px;text-align:right">8</td><td style="padding:3px 8px;text-align:right">5.8%</td><td style="padding:3px 8px">OK</td></tr>
-        <tr><td style="padding:3px 8px">Dessert</td><td style="padding:3px 8px;text-align:right">8</td><td style="padding:3px 8px;text-align:right">5.8%</td><td style="padding:3px 8px">OK</td></tr>
-        <tr><td style="padding:3px 8px">Condiment</td><td style="padding:3px 8px;text-align:right">7</td><td style="padding:3px 8px;text-align:right">5.1%</td><td style="padding:3px 8px">OK</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:11px;margin-top:6px">Many core Bojangles items are Undefined: Bo-Tato Rounds, Dirty Rice, Chicken Sandwich Combo, Mtn Dew, Pepsi Zero, BBQ Sauce. This breaks NDS-213 filtering, NDS-216 diversity/gap bonuses, and complement scoring. The LLM classification (NDS-190) has duplicate item IDs &mdash; the same item name exists under multiple IDs with different classifications.</p>
-  </div>
-
-  <div class="ci" style="border-color:#16a34a;background:#f0fdf4">
-    <h4 style="color:var(--done)">ID Translation / Masterlookup &mdash; VERIFIED CORRECT</h4>
-    <p style="font-size:12px">Target encoder classes are <strong>item IDs</strong> (132/133 match item_to_category). <code>item_id_to_name</code> correctly maps 137 items. <code>item_to_category</code> keyed by item IDs. The multiclass inference path works with IDs throughout. No ID translation bug found.</p>
-    <p style="font-size:12px;margin-top:4px">The issue is NOT ID translation &mdash; it's that <strong>model_type is missing from the artifact</strong> so the binary path (<code>_predict_binary</code>) is never invoked, and <code>item_feature_index</code> is empty (0 items) so the binary path would have no candidates even if called.</p>
-  </div>
-
-  <div class="ci" style="border-color:#2563eb;background:#eff6ff">
-    <h4 style="color:var(--acc)">What NDS-208 Branch Gets Right (Not Yet Deployed)</h4>
-    <p style="font-size:12px">The nds-208 branch has the right architecture but the binary training pipeline (<code>training_pipeline.py</code>) hasn't been merged to develop or used to produce the deployed model:</p>
-    <ul style="font-size:11px;padding-left:18px;margin-top:6px">
-      <li><strong>Binary classification</strong> (P(accept|cart,candidate)) instead of multiclass (P(item=j|features)) &mdash; directly models cart-candidate relevance</li>
-      <li><strong>Leave-one-out training</strong> with negative sampling &mdash; creates proper binary labels</li>
-      <li><strong>Complement scoring</strong> at inference &mdash; boosts complementary categories, penalizes same-category</li>
-      <li><strong>Gap-Aware MMR ranking</strong> &mdash; ensures drink/side/dessert diversity in final set</li>
-      <li><strong>CandidateFilter</strong> with 5-stage business rules &mdash; reduces candidate pool before scoring</li>
-      <li><strong>item_feature_index</strong> would store per-item features for binary candidate scoring</li>
-    </ul>
-    <p style="font-size:12px;margin-top:6px;font-weight:600;color:var(--acc)">Action Required: Train a binary model using the nds-208 pipeline, save with model_type="binary" and populated item_feature_index, then deploy.</p>
-  </div>
-
-  <div class="ci" style="border-color:#dc2626">
-    <h4 style="color:var(--todo)">Binary Retrain Attempt &mdash; Also FAIL (Simplified Pipeline)</h4>
-    <p style="font-size:12px;margin-bottom:8px">Retrained a binary model locally using leave-one-out on the merged CSV (51,308 rows, 25% positive, NEG_PER_POS=3). Model metrics looked decent (AUC-ROC: 0.8795, F1: 0.6713), but 30-scenario test produced <strong>identical Side-only recommendations for all 30 carts</strong>.</p>
-    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
-      <tr><td style="padding:3px 8px;font-weight:600;width:200px">Binary AUC-ROC</td><td style="padding:3px 8px">0.8795</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Binary F1</td><td style="padding:3px 8px">0.6713 (Precision: 0.516, Recall: 0.960)</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">30-Scenario Result</td><td style="padding:3px 8px;color:var(--todo);font-weight:600">ALL 30 scenarios: Cole Slaw, Bo-Tato Rounds, Dirty Rice, Bo Fries, Garden Salad [all Side] at score 0.8261</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Unique top-1 items</td><td style="padding:3px 8px;color:var(--todo)">3 across 30 scenarios (only Side items)</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Score spread</td><td style="padding:3px 8px;color:var(--todo)">0.0000 (completely flat)</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Top feature by gain</td><td style="padding:3px 8px">is_base_item (1075), categoryid (525), item_category_llm (409)</td></tr>
-    </table>
-    <p style="font-size:11px;color:var(--todo);margin-top:8px;font-weight:600">Root Cause: Simplified test harness uses identical shared features for all candidates (only target_category_encoded differs). Without per-candidate embeddings from item_feature_index + collaborative_generator, the model just picks the highest base-rate category (Sides). The full nds-208 _predict_binary() builds unique feature vectors per candidate &mdash; but requires item_feature_index to be populated during training, which the current deployed model lacks.</p>
-  </div>
-
-  <div class="ci" style="border-color:#2563eb;background:#eff6ff">
-    <h4 style="color:var(--acc)">Data Inventory (What's Available in Blob)</h4>
-    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
-      <thead><tr style="background:#dbeafe"><th style="padding:4px 8px;text-align:left">Data Source</th><th style="padding:4px 8px;text-align:right">Files</th><th style="padding:4px 8px;text-align:left">Latest</th><th style="padding:4px 8px;text-align:left">Status</th></tr></thead>
-      <tbody>
-        <tr><td style="padding:3px 8px">Transaction parquets (data-*.parquet)</td><td style="padding:3px 8px;text-align:right">60</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--done)">Available &mdash; 486 rows per week, 35 cols</td></tr>
-        <tr><td style="padding:3px 8px">Menu entity parquets</td><td style="padding:3px 8px;text-align:right">60</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--done)">Available</td></tr>
-        <tr><td style="padding:3px 8px">Weather parquets</td><td style="padding:3px 8px;text-align:right">60</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--done)">Available</td></tr>
-        <tr><td style="padding:3px 8px">Upsell analysis parquets</td><td style="padding:3px 8px;text-align:right">60</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--done)">Available</td></tr>
-        <tr><td style="padding:3px 8px">Location parquet</td><td style="padding:3px 8px;text-align:right">1</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--done)">Available</td></tr>
-        <tr><td style="padding:3px 8px">Frequent customers parquet</td><td style="padding:3px 8px;text-align:right">1</td><td style="padding:3px 8px">2026-01-28</td><td style="padding:3px 8px;color:var(--prog)">Available but only IDs &mdash; no profiles</td></tr>
-        <tr><td style="padding:3px 8px">Merged CSV (post-feature eng)</td><td style="padding:3px 8px;text-align:right">1</td><td style="padding:3px 8px">2026-02-28</td><td style="padding:3px 8px;color:var(--done)">71.3MB, 18,380 rows x 464 cols</td></tr>
-        <tr><td style="padding:3px 8px">Item embeddings (Word2Vec)</td><td style="padding:3px 8px;text-align:right">1</td><td style="padding:3px 8px">2026-02-28</td><td style="padding:3px 8px;color:var(--done)">865KB, 128-dim vectors</td></tr>
-        <tr><td style="padding:3px 8px">Category hierarchies JSON</td><td style="padding:3px 8px;text-align:right">1</td><td style="padding:3px 8px">2026-02-28</td><td style="padding:3px 8px;color:var(--done)">383KB</td></tr>
-        <tr><td style="padding:3px 8px">Location statistics</td><td style="padding:3px 8px;text-align:right">6 locs</td><td style="padding:3px 8px">2026-03-01</td><td style="padding:3px 8px;color:var(--done)">Per-location JSON + parquet</td></tr>
-        <tr><td style="padding:3px 8px">Trained models (XGBoost)</td><td style="padding:3px 8px;text-align:right">13</td><td style="padding:3px 8px">2026-02-28</td><td style="padding:3px 8px;color:var(--prog)">All multiclass. No binary model exists. No item_feature_index.</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="ci" style="border-color:#dc2626;background:#fff0f0">
-    <h4 style="color:var(--todo)">30-Scenario Test Results Summary</h4>
-    <p style="font-size:12px;margin-bottom:8px">Both models tested against 30 Bojangles cart scenarios. Neither produces cart-sensitive recommendations.</p>
-    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
-      <thead><tr style="background:#fee2e2"><th style="padding:4px 8px;text-align:left">Metric</th><th style="padding:4px 8px;text-align:center">Deployed Multiclass</th><th style="padding:4px 8px;text-align:center">Local Binary Retrain</th><th style="padding:4px 8px;text-align:center">Target</th></tr></thead>
-      <tbody>
-        <tr><td style="padding:3px 8px">Unique top-1 across 30 scenarios</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">1 (Starry)</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">3 (all Sides)</td><td style="padding:3px 8px;text-align:center;color:var(--done)">15+</td></tr>
-        <tr><td style="padding:3px 8px">Identical top-5 pairs</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">9/21 (43%)</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">238/435 (55%)</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td></tr>
-        <tr><td style="padding:3px 8px">Cart duplicates</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td></tr>
-        <tr><td style="padding:3px 8px">Average unique categories in recs</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">2.0</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">1.0</td><td style="padding:3px 8px;text-align:center;color:var(--done)">3+</td></tr>
-        <tr><td style="padding:3px 8px">Score spread (top - bottom)</td><td style="padding:3px 8px;text-align:center;color:var(--prog)">0.103</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">0.000</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0.2+</td></tr>
-        <tr><td style="padding:3px 8px">Scenarios passing (diverse recs)</td><td style="padding:3px 8px;text-align:center;color:var(--todo);font-weight:700">0/30</td><td style="padding:3px 8px;text-align:center;color:var(--todo);font-weight:700">0/30</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">25+/30</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:11px;color:var(--todo);margin-top:8px;font-weight:600">Conclusion: The deployed multiclass model cannot be used for production. The nds-208 binary pipeline must be run end-to-end.</p>
-  </div>
-
-  <div class="ci" style="border-color:#16a34a;background:#f0fdf4">
-    <h4 style="color:var(--done)">FULL NDS-208 Pipeline Retrain &mdash; EXECUTED LOCALLY (No Blob Upload)</h4>
-    <p style="font-size:12px;margin-bottom:8px">Ran the actual <code>XGBoostDataPrep.download_and_merge_parquet_files()</code> + <code>XGBoostRecsysTrainer.train()</code> from nds-208 branch with all saves intercepted locally. This is the genuine pipeline output.</p>
-    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
-      <tr><td style="padding:3px 8px;font-weight:600;width:220px">Data Prep Output</td><td style="padding:3px 8px">266,727 rows x 369 features (leave-one-out with 3:1 neg sampling)</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Labels</td><td style="padding:3px 8px">88,909 positive / 177,818 negative</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Model Type</td><td style="padding:3px 8px;color:var(--done);font-weight:600">binary (binary:logistic) &mdash; correctly set in artifact</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">item_feature_index</td><td style="padding:3px 8px;color:var(--done);font-weight:600">241 items &mdash; POPULATED (binary _predict_binary path will work)</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Feature Columns</td><td style="padding:3px 8px">365</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">AUC-ROC</td><td style="padding:3px 8px">0.9989</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">F1 / Precision / Recall</td><td style="padding:3px 8px">0.956 / 0.997 / 0.918</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">NDCG@5</td><td style="padding:3px 8px">1.0000 (perfect on test set)</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Catalog Coverage</td><td style="padding:3px 8px">63.9% (154/241 items)</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Category Coverage</td><td style="padding:3px 8px">85.71%</td></tr>
-      <tr><td style="padding:3px 8px;font-weight:600">Pipeline Time</td><td style="padding:3px 8px">~11 min (596s data prep + 70s training)</td></tr>
-    </table>
-  </div>
-
-  <div class="ci" style="border-color:#d97706;background:#fffbeb">
-    <h4 style="color:var(--prog)">30-Scenario Test &mdash; Binary Model (NDS-208 Full Pipeline)</h4>
-    <p style="font-size:12px;margin-bottom:8px">Ran 30 Bojangles cart scenarios against the locally-trained binary model using <code>item_feature_index</code> for per-candidate features.</p>
-    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
-      <thead><tr style="background:#fef3c7"><th style="padding:4px 8px;text-align:left">Metric</th><th style="padding:4px 8px;text-align:center">Deployed Multiclass</th><th style="padding:4px 8px;text-align:center">NDS-208 Binary (Full Pipeline)</th><th style="padding:4px 8px;text-align:center">Target</th></tr></thead>
-      <tbody>
-        <tr><td style="padding:3px 8px">Unique top-1 across 30 scenarios</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">1 (Starry)</td><td style="padding:3px 8px;text-align:center;color:var(--prog)">1 (Tenders Combo)</td><td style="padding:3px 8px;text-align:center">15+</td></tr>
-        <tr><td style="padding:3px 8px">Identical top-5 pairs</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">9/21 (43%)</td><td style="padding:3px 8px;text-align:center;color:var(--prog)">286/435 (66%)</td><td style="padding:3px 8px;text-align:center">0</td></tr>
-        <tr><td style="padding:3px 8px">Cart duplicates</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td><td style="padding:3px 8px;text-align:center;color:var(--done)">0</td><td style="padding:3px 8px;text-align:center">0</td></tr>
-        <tr><td style="padding:3px 8px">Avg unique categories in recs</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">2.0</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">3.2</td><td style="padding:3px 8px;text-align:center">3+</td></tr>
-        <tr><td style="padding:3px 8px">Score spread</td><td style="padding:3px 8px;text-align:center">0.103</td><td style="padding:3px 8px;text-align:center">0.028</td><td style="padding:3px 8px;text-align:center">0.2+</td></tr>
-        <tr><td style="padding:3px 8px">Scenarios passing basic quality</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">0/30</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">30/30</td><td style="padding:3px 8px;text-align:center">25+/30</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:11px;margin-top:8px"><strong>What improved:</strong> Category diversity jumped from 2.0 to 3.2 unique categories per recommendation. All 30 scenarios now pass basic quality (diverse categories, non-zero spread, no cart duplicates). Recommendations include Meal, Dessert, Side, and Drink items.</p>
-    <p style="font-size:11px;margin-top:4px"><strong>What still needs work:</strong> Top-1 item is identical across all 30 scenarios (Bo's Chicken Tenders Combo). The model learned strong per-item popularity but cart embedding signal is still too weak to differentiate. The complement scoring and Gap-Aware MMR in <code>_predict_binary()</code> would further improve diversity but weren't applied in this raw-score test.</p>
-    <p style="font-size:11px;margin-top:4px;color:var(--prog);font-weight:600">Assessment: The nds-208 pipeline produces a significantly better model than what's deployed. Category diversity meets the target (3.2 vs 3+ goal). Cart sensitivity is the remaining gap &mdash; the full <code>_predict_binary()</code> with complement scoring, gap bonuses, and MMR ranking would help but hasn't been tested end-to-end yet.</p>
-  </div>
-
-  <div class="ci" style="border-color:#2563eb;background:#eff6ff">
-    <h4 style="color:var(--acc)">Sample Recommendations (Binary Model)</h4>
-    <table style="font-size:10px;width:100%;border-collapse:collapse;margin-top:6px">
-      <thead><tr style="background:#dbeafe"><th style="padding:3px 6px">Scenario</th><th style="padding:3px 6px">Cart</th><th style="padding:3px 6px">Rec 1</th><th style="padding:3px 6px">Rec 2</th><th style="padding:3px 6px">Rec 3</th><th style="padding:3px 6px">Rec 4</th><th style="padding:3px 6px">Rec 5</th></tr></thead>
-      <tbody>
-        <tr><td style="padding:2px 6px">Empty</td><td style="padding:2px 6px">(none)</td><td style="padding:2px 6px">Tenders Combo [Meal]</td><td style="padding:2px 6px">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Fries [Side]</td><td style="padding:2px 6px">Bo Berry Biscuit [Dessert]</td><td style="padding:2px 6px">Sandwich Combo [Meal]</td></tr>
-        <tr><td style="padding:2px 6px">Main+Side+Drink</td><td style="padding:2px 6px">Breast+Mac&Cheese+Water</td><td style="padding:2px 6px">Tenders Combo [Meal]</td><td style="padding:2px 6px">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Fries [Side]</td><td style="padding:2px 6px">Bo Berry Biscuit [Dessert]</td><td style="padding:2px 6px">Sandwich Combo [Meal]</td></tr>
-        <tr><td style="padding:2px 6px">Two Sides removed</td><td style="padding:2px 6px">Mac&Cheese+Bo Fries</td><td style="padding:2px 6px">Tenders Combo [Meal]</td><td style="padding:2px 6px">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Berry Biscuit [Dessert]</td><td style="padding:2px 6px">Sandwich Combo [Meal]</td><td style="padding:2px 6px"><strong>Coffee [Drink]</strong></td></tr>
-        <tr><td style="padding:2px 6px">4-item cart</td><td style="padding:2px 6px">Breast+Mac+Water+BoBerry</td><td style="padding:2px 6px">Tenders Combo [Meal]</td><td style="padding:2px 6px">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Fries [Side]</td><td style="padding:2px 6px">Sandwich Combo [Meal]</td><td style="padding:2px 6px"><strong>Coffee [Drink]</strong></td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:10px;margin-top:4px;color:var(--mut)">Note: When items are removed from the candidate pool (already in cart), the model does shift recommendations &mdash; Coffee appears as #5 when Sides or Desserts are in cart. This is correct cart-exclusion behavior even if the core scores don't change much.</p>
-  </div>
-
-  <div class="ci" style="border-color:#d97706;background:#fffbeb">
-    <h4 style="color:var(--prog)">Full _predict_binary() Path Test &mdash; Cart Analysis Works, Feature Extraction Has Bug</h4>
-    <p style="font-size:12px;margin-bottom:6px">Attempted to run the actual <code>_predict_binary()</code> code path with complement scoring and Gap-Aware MMR. The cart analysis step works correctly &mdash; it properly identifies categories, counts, needs (needs_drink, needs_side, needs_dessert), and completeness scores. However, all 30 scenarios errored at <code>_extract_cart_features_from_payload()</code> due to string columns in the payload DataFrame that <code>np.nanmean</code> can't handle.</p>
-    <table style="font-size:10px;width:100%;border-collapse:collapse;margin-top:6px">
-      <thead><tr style="background:#fef3c7"><th style="padding:3px 6px">Scenario</th><th style="padding:3px 6px">Cart Analysis Result (CORRECT)</th></tr></thead>
-      <tbody>
-        <tr><td style="padding:2px 6px">Main + Condiment</td><td style="padding:2px 6px">categories: {Condiment, Main}, needs_drink: True, needs_side: True, completeness: 0.25</td></tr>
-        <tr><td style="padding:2px 6px">One of everything</td><td style="padding:2px 6px">categories: {Main, Side, Meal, Drink, Dessert}, needs_drink: False, needs_side: True, completeness: 1.0</td></tr>
-        <tr><td style="padding:2px 6px">Two Mains</td><td style="padding:2px 6px">categories: {Main}, main_count: 2, needs_drink: True, needs_side: True, needs_dessert: True</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:11px;color:var(--prog);margin-top:6px;font-weight:600">Bug origin: Commit <code>699323e</code> by Nikunj (Feb 24 2026) on nds-208 branch. Does NOT exist on develop. Two bugs found and fixed on <code>lawrence-cursor-branch</code>.</p>
-  </div>
-
-  <div class="ci" style="border-color:#16a34a;background:#f0fdf4">
-    <h4 style="color:var(--done)">AFTER BUG FIX: Full _predict_binary 30-Scenario Results (lawrence-cursor-branch)</h4>
-    <p style="font-size:12px;margin-bottom:8px">Fixed 2 bugs in <code>cpu_predict.py</code> on <code>lawrence-cursor-branch</code>: (1) <code>_extract_cart_features_from_payload</code> now skips non-numeric columns, (2) <code>_build_candidate_batch</code> falls back to <code>item_feature_index</code> when collaborative_generator is a dict. Full pipeline now runs end-to-end with complement scoring, condiment filtering, and ranking.</p>
-    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
-      <thead><tr style="background:#dcfce7"><th style="padding:4px 8px;text-align:left">Metric</th><th style="padding:4px 8px;text-align:center">Deployed Multiclass</th><th style="padding:4px 8px;text-align:center">Raw Binary (no post-proc)</th><th style="padding:4px 8px;text-align:center;font-weight:700">After Bug Fix (full pipeline)</th><th style="padding:4px 8px;text-align:center">Target</th></tr></thead>
-      <tbody>
-        <tr><td style="padding:3px 8px">OK scenarios (no errors)</td><td style="padding:3px 8px;text-align:center">7/7</td><td style="padding:3px 8px;text-align:center">30/30</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">30/30</td><td style="padding:3px 8px;text-align:center">30/30</td></tr>
-        <tr><td style="padding:3px 8px">Unique top-1 items</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">1</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">1</td><td style="padding:3px 8px;text-align:center;color:var(--prog);font-weight:700">5</td><td style="padding:3px 8px;text-align:center">15+</td></tr>
-        <tr><td style="padding:3px 8px">Identical top-5 pairs</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">9/21 (43%)</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">286/435 (66%)</td><td style="padding:3px 8px;text-align:center;color:var(--prog);font-weight:700">87/435 (20%)</td><td style="padding:3px 8px;text-align:center">0</td></tr>
-        <tr><td style="padding:3px 8px">Avg unique categories</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">2.0</td><td style="padding:3px 8px;text-align:center;color:var(--done)">3.2</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">3.0</td><td style="padding:3px 8px;text-align:center">3+</td></tr>
-        <tr><td style="padding:3px 8px">Avg score spread</td><td style="padding:3px 8px;text-align:center">0.103</td><td style="padding:3px 8px;text-align:center">0.028</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">0.107</td><td style="padding:3px 8px;text-align:center">0.2+</td></tr>
-        <tr><td style="padding:3px 8px">Cart duplicates</td><td style="padding:3px 8px;text-align:center">0</td><td style="padding:3px 8px;text-align:center">0</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">0</td><td style="padding:3px 8px;text-align:center">0</td></tr>
-        <tr><td style="padding:3px 8px">Scenarios passing</td><td style="padding:3px 8px;text-align:center;color:var(--todo)">0/7</td><td style="padding:3px 8px;text-align:center;color:var(--done)">30/30</td><td style="padding:3px 8px;text-align:center;color:var(--done);font-weight:700">29/30</td><td style="padding:3px 8px;text-align:center">25+/30</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:12px;margin-top:10px;font-weight:600;color:var(--done)">Key improvements after fix:</p>
-    <ul style="font-size:11px;padding-left:18px">
-      <li><strong>Cart-aware recommendations working:</strong> Main+Side cart &rarr; recommends Drinks + Desserts (no more Mains). Main+Drink cart &rarr; recommends Sides + Desserts. Full meal cart &rarr; fewer recommendations (only Condiment + Meal).</li>
-      <li><strong>Category gaps detected and filled:</strong> Scenario 7 (Main+Side, no drink) &rarr; top recs are Coffee [Drink] and Pepsi [Drink]. Scenario 12 (Two Drinks, no food) &rarr; top recs are Peach Cobbler [Dessert], Tenders Combo [Meal], Bo Fries [Side].</li>
-      <li><strong>Cart exclusion working:</strong> Scenario 14 (Full meal+Dessert) only returns 2 items. Scenario 30 (one of everything) returns just 1 item (House-Made Ranch). Model correctly reduces recommendations when cart is already complete.</li>
-      <li><strong>Score differentiation:</strong> Confidence range 0.58-0.77 with meaningful spread. Premium Coffee tops Drink recs (0.769), Bo Fries tops Side recs (0.764), Peach Cobbler tops Dessert recs (0.752).</li>
-    </ul>
-  </div>
-
-  <div class="ci" style="border-color:#2563eb;background:#eff6ff">
-    <h4 style="color:var(--acc)">Sample Results After Bug Fix</h4>
-    <table style="font-size:10px;width:100%;border-collapse:collapse;margin-top:6px">
-      <thead><tr style="background:#dbeafe"><th style="padding:3px 6px">Scenario</th><th style="padding:3px 6px">Cart</th><th style="padding:3px 6px">Rec 1</th><th style="padding:3px 6px">Rec 2</th><th style="padding:3px 6px">Rec 3</th><th style="padding:3px 6px">Rec 4</th><th style="padding:3px 6px">Rec 5</th></tr></thead>
-      <tbody>
-        <tr><td style="padding:2px 6px">7. Main+Side</td><td style="padding:2px 6px">Breast + Mac&Cheese</td><td style="padding:2px 6px;color:var(--done)">Coffee [Drink]</td><td style="padding:2px 6px">Pepsi [Drink]</td><td style="padding:2px 6px">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Berry [Dessert]</td><td style="padding:2px 6px">Tenders Combo [Meal]</td></tr>
-        <tr><td style="padding:2px 6px">8. Main+Drink</td><td style="padding:2px 6px">Breast + Water</td><td style="padding:2px 6px;color:var(--done)">Bo Fries [Side]</td><td style="padding:2px 6px">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Berry [Dessert]</td><td style="padding:2px 6px">Bo-Tato Rounds [Side]</td><td style="padding:2px 6px">Tenders Combo [Meal]</td></tr>
-        <tr><td style="padding:2px 6px">10. Two Mains</td><td style="padding:2px 6px">Breast + Leg</td><td style="padding:2px 6px;color:var(--done)">Coffee [Drink]</td><td style="padding:2px 6px">Pepsi [Drink]</td><td style="padding:2px 6px">Bo Fries [Side]</td><td style="padding:2px 6px">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Berry [Dessert]</td></tr>
-        <tr><td style="padding:2px 6px">12. Two Drinks</td><td style="padding:2px 6px">Water + Diet Mtn Dew</td><td style="padding:2px 6px;color:var(--done)">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Berry [Dessert]</td><td style="padding:2px 6px">Tenders Combo [Meal]</td><td style="padding:2px 6px">Bo Fries [Side]</td><td style="padding:2px 6px">Egg&Cheese Biscuit [Main]</td></tr>
-        <tr><td style="padding:2px 6px">14. Full+Dessert</td><td style="padding:2px 6px">Breast+Mac+Water+BoBerry</td><td style="padding:2px 6px">Tenders Combo [Meal]</td><td style="padding:2px 6px;color:var(--done)">Ranch [Condiment]</td><td style="padding:2px 6px" colspan="3"><em>(only 2 items &mdash; cart is nearly complete)</em></td></tr>
-        <tr><td style="padding:2px 6px">22. Just coffee</td><td style="padding:2px 6px">Premium Coffee</td><td style="padding:2px 6px;color:var(--done)">Peach Cobbler [Dessert]</td><td style="padding:2px 6px">Bo Berry [Dessert]</td><td style="padding:2px 6px">Tenders Combo [Meal]</td><td style="padding:2px 6px">Bo Fries [Side]</td><td style="padding:2px 6px">Egg&Cheese [Main]</td></tr>
-        <tr><td style="padding:2px 6px">30. Everything</td><td style="padding:2px 6px">Breast+Mac+Water+BoBerry+Family</td><td style="padding:2px 6px">Ranch [Condiment]</td><td style="padding:2px 6px" colspan="4"><em>(only 1 item &mdash; cart is complete)</em></td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ======================== PER-TICKET GAP ANALYSIS ======================== -->
-<div class="arch-box" style="border:2px solid var(--acc)">
-  <h3 style="color:var(--acc)">Per-Ticket Gap Analysis &mdash; Based on Real Test Evidence</h3>
-  <div class="arch-sub">Each Jira ticket assessed against actual model output, feature importance, and pipeline test results from 2026-03-02.</div>
-  <table class="tbl">
-    <thead><tr><th>Ticket</th><th>Requirement</th><th>Evidence From Testing</th><th>Verdict</th></tr></thead>
+  <table style="margin-top:12px">
+    <thead><tr><th>Component</th><th>Develop Status</th><th>What's Missing vs V2 Spec</th></tr></thead>
     <tbody>
-      <tr><td class="tk">NDS-208</td><td class="ts">Train Model (binary, weekly)</td><td class="gc">Full pipeline ran locally: 266,727 rows, 365 features, AUC 0.999, item_feature_index populated with 241 items. model_type correctly set to "binary".</td><td><span class="badge bd">WORKS</span></td></tr>
-      <tr><td class="tk">NDS-212</td><td class="ts">Extract Order Context</td><td class="gc">Cart analysis confirmed working: correctly identifies categories, counts (main_count, side_count...), needs (needs_drink, needs_side, needs_dessert), completeness_score. Tested with 30 different cart compositions.</td><td><span class="badge bd">WORKS</span></td></tr>
-      <tr><td class="tk">NDS-213</td><td class="ts">Candidate Items via Business Rules</td><td class="gc">CandidateFilter exists with 5 stages. Tested with skip_candidate_filter=True for clean comparison. Cart items correctly excluded from candidates (236 of 241 candidates after removing cart items). Not tested with real availability/inventory data.</td><td><span class="badge bp">PARTIAL</span></td></tr>
-      <tr><td class="tk">NDS-214</td><td class="ts">Engineer Features for Candidates</td><td class="gc"><strong>Fixed on lawrence-cursor-branch.</strong> Two bugs: (1) <code>_extract_cart_features_from_payload</code> crashed on string columns (2) <code>_build_candidate_batch</code> crashed when collab_gen is dict. After fix: 30/30 scenarios pass, item_feature_index provides 136 features per candidate.</td><td><span class="badge bd">FIXED</span></td></tr>
-      <tr><td class="tk">NDS-215</td><td class="ts">Score Model</td><td class="gc"><strong>After fix:</strong> Confidence range 0.58-0.77 with meaningful spread (avg 0.107). 5 unique top-1 items across 30 scenarios. Scores correctly differentiate: Coffee 0.769 > Bo Fries 0.764 > Peach Cobbler 0.752. Cart composition changes the ranking.</td><td><span class="badge bd">WORKS</span></td></tr>
-      <tr><td class="tk">NDS-216</td><td class="ts">Ranking &amp; Diversity</td><td class="gc"><strong>After fix:</strong> Full pipeline runs end-to-end. Cart-aware filtering works: Main+Side &rarr; Drinks recommended. Main+Drink &rarr; Sides recommended. Full cart &rarr; only 1-2 items returned. 3.0 avg unique categories. 29/30 scenarios pass.</td><td><span class="badge bd">WORKS</span></td></tr>
-      <tr><td class="tk">NDS-204</td><td class="ts">Location Statistics</td><td class="gc">location-statistics-*.parquet present for 6 Bojangles locations. Latest from 2026-03-01. Features flow into training: loc_stats_side_acceptance_rate, loc_stats_drink_acceptance_rate, loc_stats_price_sensitivity, etc. 113 features after merge include location stats.</td><td><span class="badge bd">WORKS</span></td></tr>
-      <tr><td class="tk">NDS-206</td><td class="ts">Hourly Weather Cache</td><td class="gc">60 weather parquets available. Weather features in training data: weather_temperature_c, weather_humidity, weather_comfort_score, etc. (34 weather features after merge). BUT weather contributes only <strong>0.5% of model gain</strong> &mdash; the model barely uses it.</td><td><span class="badge bp">LOW IMPACT</span></td></tr>
-      <tr><td class="tk">NDS-210</td><td class="ts">Item Attributes</td><td class="gc">item_feature_index has 136 features per item including: item_embedding (128-dim), item_cooccurrence, item_popularity, item_similarity. is_base_item is the #1 feature by gain (1075.59). Item attributes drive the model's primary signal.</td><td><span class="badge bd">WORKS</span></td></tr>
-      <tr><td class="tk">NDS-211</td><td class="ts">Category Hierarchies</td><td class="gc">complement_scores has 64 pairs (e.g., Main-Side: 0.95, Main-Main: -0.50). category_hierarchies.json saved with 6,642 item mappings. BUT: scores are hardcoded not data-driven, no Cosmos tables, no per-org customization. The complement scoring is never reached due to NDS-214 bug.</td><td><span class="badge bp">PARTIAL</span></td></tr>
-      <tr><td class="tk">NDS-273</td><td class="ts">Add Condiment Category</td><td class="gc">8 categories present: Main, Side, Drink, Dessert, Meal, Condiment, Other, Undefined. 7 items classified as Condiment (BBQ Sauce, Honey Mustard, etc.). category_limits includes Condiment:1. BUT: 48% of items still "Undefined" meaning many condiments may be misclassified.</td><td><span class="badge bp">PARTIAL</span></td></tr>
-      <tr><td class="tk">NDS-190</td><td class="ts">LLM Menu Classification</td><td class="gc"><strong>48.2% of items are "Undefined"</strong> (66/137 in deployed model, ~100/241 in retrained model). Includes core items: Bo-Tato Rounds, Dirty Rice, Mtn Dew, Pepsi, Chicken Sandwich Combo. This is the single biggest quality issue &mdash; it breaks category-dependent features, filtering, diversity, and complement scoring.</td><td><span class="badge bt">FAILING</span></td></tr>
-      <tr><td class="tk">NDS-234</td><td class="ts">Training Dataset</td><td class="gc">7 parquet sources all present: 60 transaction files, 60 menu, 60 weather, 60 upsell analysis, 1 location, 1 frequent customers. Multi-source merge produces 113 features. Leave-one-out creates 266,727 binary training rows from 9,089 transactions.</td><td><span class="badge bd">WORKS</span></td></tr>
-      <tr><td class="tk">NDS-248</td><td class="ts">Recs same regardless of cart</td><td class="gc"><strong>SIGNIFICANTLY IMPROVED after bug fix.</strong> Identical pairs dropped from 43% to 20%. 5 unique top-1 items (was 1). Main+Side &rarr; Drinks; Main+Drink &rarr; Sides; Full cart &rarr; minimal recs. BUT: 20% identical pairs remain, and some scenarios with different carts still produce same top-5. Needs complement scoring + MMR to fully resolve.</td><td><span class="badge bp">IMPROVED</span></td></tr>
-      <tr><td class="tk">NDS-237</td><td class="ts">Item Weather Tags</td><td class="gc">Not implemented. Weather features are order-level only. No per-item weather_tags or temperature_affinity. Weather contributes 0.5% of model gain &mdash; would need item-level tags to be useful.</td><td><span class="badge bt">MISSING</span></td></tr>
-      <tr><td class="tk">NDS-205</td><td class="ts">Customer Profiles</td><td class="gc">frequentcustomers.parquet exists (454 bytes &mdash; almost empty). No customer features in training. frequentcustomerid is label-encoded only. 0/15 customer features from spec.</td><td><span class="badge bt">MISSING</span></td></tr>
-      <tr><td class="tk">NDS-314</td><td class="ts">subTotal + orderType in API</td><td class="gc">orderType present in payload ("Dine In"). subTotal NOT in payload. order_type features created (is_dine_in, is_takeout, etc.) but subTotal not wired.</td><td><span class="badge bp">PARTIAL</span></td></tr>
-      <tr><td class="tk">NDS-275</td><td class="ts">Condiment limit to 1</td><td class="gc"><strong>After fix:</strong> Condiment items appear in recs but max 1 per set. Scenario 14 (Full meal+Dessert): House-Made Ranch [Condiment] appears as #2. Scenario 30 (everything): Ranch is the only rec. Condiment filtering works correctly.</td><td><span class="badge bd">WORKS</span></td></tr>
-      <tr><td class="tk">NDS-226</td><td class="ts">ECM / Available Items Filter</td><td class="gc">available_items dict built with 241 items from item_feature_index. Binary path uses available_item_names to filter candidates. Works correctly &mdash; 241 items presented, cart items excluded.</td><td><span class="badge bd">WORKS</span></td></tr>
-      <tr><td class="tk">NDS-255</td><td class="ts">Modifier Recommendations</td><td class="gc">Not implemented. No modifier model, no modifier features, no modifier API.</td><td><span class="badge bt">MISSING</span></td></tr>
-      <tr><td class="tk">NDS-184</td><td class="ts">Model Evaluation Page</td><td class="gc">BE subtasks done (NDS-301). Evaluation metrics computed during training: AUC, F1, NDCG, Hit Rate, catalog coverage, category entropy. But full Summary/Detailed Analysis tabs not wired in UI.</td><td><span class="badge bp">PARTIAL</span></td></tr>
+      <tr><td>Training Pipeline</td><td><span class="badge bd">Multiclass</span></td><td>Only <span class="cr">training.py</span> with <span class="cr">multi:softprob</span>. No binary, no leave-one-out, no neg sampling, no <span class="cr">training_pipeline.py</span></td></tr>
+      <tr><td>Inference: predict()</td><td><span class="badge bd">Works</span></td><td>Multiclass only. No <span class="cr">_predict_binary()</span>, no per-candidate scoring</td></tr>
+      <tr><td>NDS-213: Candidate Filter</td><td><span class="badge bt">Missing</span></td><td><span class="cr">CandidateFilter</span> exists only on nds-208</td></tr>
+      <tr><td>NDS-216: Ranking/Diversity</td><td><span class="badge bt">Missing</span></td><td><span class="cr">RankingDiversitySelector</span>, Gap-Aware MMR, gap bonuses only on nds-208</td></tr>
+      <tr><td>Complement Scoring</td><td><span class="badge bt">Missing</span></td><td>Hardcoded scores in <span class="cr">cpu_training.py</span> on nds-208 only</td></tr>
+      <tr><td>item_feature_index</td><td><span class="badge bt">Missing</span></td><td>Deployed model has 0 items. Binary path has no candidate data</td></tr>
+      <tr><td>model_type artifact key</td><td><span class="badge bt">Missing</span></td><td>Deployed model defaults to "multiclass". Binary path never invoked</td></tr>
+      <tr><td>Location Statistics</td><td><span class="badge bd">Works</span></td><td>Job 2 present on both branches</td></tr>
+      <tr><td>Weather Cache</td><td><span class="badge bd">Works</span></td><td>Job 6 present. But weather = 0.5% of model gain</td></tr>
+      <tr><td>Item Attributes</td><td><span class="badge bd">Works</span></td><td>Job 4 partially present</td></tr>
+      <tr><td>Customer Profiles</td><td><span class="badge bt">Missing</span></td><td>Job 3 not started. 0/15 features. Blocks V3</td></tr>
+      <tr><td>LLM Classification</td><td><span class="badge bt">Failing</span></td><td>48% of items are "Undefined" including core Bojangles items</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note" style="margin-top:12px"><strong>Deployed model test (multiclass):</strong> 0/7 scenarios pass. Same top-5 for every cart (Starry, Bo's Chicken Biscuit, BBQ Sauce, Cole Slaw, Chocolate Milkshake). Score delta between empty cart and full cart: 0.00001. The model is a popularity predictor.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: LAWRENCE-CURSOR-BRANCH FIXES -->
+<!-- ============================================================ -->
+<div class="bx" style="border:2px solid var(--b)">
+  <h3>Section 2: lawrence-cursor-branch (Bug Fixes + Test)</h3>
+  <p class="note">Branch created from nds-208. Commit <span class="cr">5a2d4b7</span>: "fix: Handle non-numeric columns in _extract_cart_features_from_payload and dict collaborative_generator in _build_candidate_batch". Both bugs originated from Nikunj's commit <span class="cr">699323e</span> (Feb 24 2026) on nds-208. Neither exists on develop.</p>
+
+  <table style="margin-top:12px">
+    <thead><tr><th>Bug</th><th>Location</th><th>Cause</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1. nanmean on strings</strong></td><td><span class="cr">cpu_predict.py:1680</span></td><td><span class="cr">np.nanmean()</span> on string columns ('temperature':'75')</td><td><span class="cr">pd.to_numeric(errors='coerce')</span> before nanmean, skip non-convertible</td></tr>
+      <tr><td><strong>2. dict has no get_item_features</strong></td><td><span class="cr">cpu_predict.py:1641</span></td><td>collaborative_generator deserialized as dict, not object</td><td><span class="cr">hasattr</span> check, fallback to <span class="cr">item_feature_index</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:18px">Before / After Comparison</h3>
+  <table style="margin-top:8px">
+    <thead><tr><th>Metric</th><th>Develop (Multiclass)</th><th>nds-208 (Before Fix)</th><th>lawrence-cursor-branch</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Scenarios running</td><td>7/7</td><td style="color:var(--r)">0/30 (all crash)</td><td style="color:var(--g);font-weight:700">30/30</td><td>30/30</td></tr>
+      <tr><td>Scenarios passing</td><td style="color:var(--r)">0/7</td><td>N/A</td><td style="color:var(--g);font-weight:700">29/30</td><td>25+</td></tr>
+      <tr><td>Unique top-1 items</td><td style="color:var(--r)">1</td><td>N/A</td><td style="color:var(--y)">5</td><td>15+</td></tr>
+      <tr><td>Identical top-5 pairs</td><td style="color:var(--r)">43%</td><td>N/A</td><td style="color:var(--y)">20%</td><td>0%</td></tr>
+      <tr><td>Avg unique categories</td><td style="color:var(--r)">2.0</td><td>N/A</td><td style="color:var(--g);font-weight:700">3.0</td><td>3+</td></tr>
+      <tr><td>Avg score spread</td><td>0.103</td><td>N/A</td><td>0.107</td><td>0.2+</td></tr>
+      <tr><td>Cart duplicates</td><td style="color:var(--g)">0</td><td>N/A</td><td style="color:var(--g)">0</td><td>0</td></tr>
+      <tr><td>Cart-aware recs</td><td style="color:var(--r)">No</td><td>N/A</td><td style="color:var(--g);font-weight:700">Yes</td><td>Yes</td></tr>
     </tbody>
   </table>
 </div>
 
-<!-- OFFLINE JOBS -->
-<div class="sec" id="sec-offline">
-  <div class="sec-hdr" onclick="tog('sec-offline')">
-    <h2>Offline Data Preparation &mdash; 6 Background Jobs</h2>
-    <div class="meta"><span class="badge bd">4 Done</span><span class="badge bp">1 Partial</span><span class="badge bt">1 Missing</span><span class="chv">&#9660;</span></div>
+<!-- ============================================================ -->
+<!-- SECTION 3: 30 SCENARIO RESULTS -->
+<!-- ============================================================ -->
+<div class="sec" id="s3">
+  <div class="sh" onclick="document.getElementById('s3').classList.toggle('cl')">
+    <h2>Section 3: 30 Scenario Test Results (lawrence-cursor-branch)</h2>
+    <div class="mx"><span class="badge bd">29 Pass</span><span class="badge bp">1 Partial</span><span class="ch">&#9660;</span></div>
   </div>
-  <div class="sec-body">
-    <table class="tbl">
-      <thead><tr><th>Job</th><th>Name</th><th>Schedule</th><th>Jira</th><th>Code Status</th><th>Code Reference</th><th>Gap Analysis</th></tr></thead>
+  <div class="sb">
+    <table>
+      <thead><tr><th>#</th><th>Scenario</th><th>Cart</th><th>Rec 1</th><th>Rec 2</th><th>Rec 3</th><th>Rec 4</th><th>Rec 5</th><th>Cats</th><th>Spread</th></tr></thead>
       <tbody>
-        <tr><td><strong>Job 1</strong></td><td class="ts">Collaborative Filtering Computation</td><td>Nightly 2 AM</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-214">NDS-214</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">collaborative_features.py</span> &mdash; Word2Vec 128-dim, co-occurrence, lift, similarity. Output: <span class="cr">item_embeddings.pkl</span></td><td class="gc"><span class="gt gt-n">No Gap</span> All specified outputs implemented.</td></tr>
-        <tr><td><strong>Job 2</strong></td><td class="ts">Location Statistics Computation</td><td>Nightly 3 AM</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-204">NDS-204</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">location_statistics_service.py</span> &mdash; 11 columns, 13mo data, daily. <span class="cr">location-statistics-*.parquet</span></td><td class="gc"><span class="gt gt-n">No Gap</span> All 11 columns from spec present.</td></tr>
-        <tr style="background:#fff7f7"><td><strong>Job 3</strong></td><td class="ts">Customer Profile Updates</td><td>Nightly 4 AM</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-205">NDS-205</a></td><td><span class="badge bt">Not Started</span></td><td class="gc"><span class="cr">frequentcustomers.parquet</span> loaded but only ID used. No profiles, no Redis, no nightly job.</td><td class="gc"><span class="gt gt-c">CRITICAL</span> 0/15 customer features. Blocks all V3.</td></tr>
-        <tr><td><strong>Job 4</strong></td><td class="ts">Content-Based Feature Computation</td><td>Weekly Sun 12 AM</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-210">NDS-210</a>, <a href="https://grubbrr.atlassian.net/browse/NDS-211">NDS-211</a></td><td><span class="badge bp">Partial</span></td><td class="gc">Embeddings + similarity + attributes: DONE. Category hierarchies: hardcoded only. Item weather tags: MISSING.</td><td class="gc"><span class="gt gt-m">Moderate</span> NDS-211 and NDS-237 not materialized.</td></tr>
-        <tr><td><strong>Job 5</strong></td><td class="ts">Model Training</td><td>Weekly Sun 1 AM</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-208">NDS-208</a></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="cr">XGBoostTrainingPipeline</span> &mdash; Guest model done (45 features). Personalized model missing (15 customer features).</td><td class="gc"><span class="gt gt-m">Moderate</span> Dual Model architecture not implemented.</td></tr>
-        <tr><td><strong>Job 6</strong></td><td class="ts">Weather Cache Updates</td><td>Every 30 min</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-206">NDS-206</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">weather_repository.py</span> + <span class="cr">weather_updater.py</span>. Per-location, derived features.</td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
+        <tr><td>1</td><td>Empty cart</td><td>(empty)</td><td>Coffee [Drink]</td><td>Pepsi [Drink]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Tenders Combo [Meal]</td><td>3</td><td>.086</td></tr>
+        <tr><td>2</td><td>Single Main</td><td>1 Breast</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr><td>3</td><td>Single Side</td><td>Mac &amp; Cheese</td><td>Coffee [Drink]</td><td>Pepsi [Drink]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Tenders Combo [Meal]</td><td>3</td><td>.086</td></tr>
+        <tr><td>4</td><td>Single Drink</td><td>Water</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Tenders Combo [Meal]</td><td>Bo Fries [Side]</td><td>Egg&amp;Cheese [Main]</td><td>4</td><td>.089</td></tr>
+        <tr><td>5</td><td>Single Dessert</td><td>Bo Berry Biscuit</td><td>Coffee [Drink]</td><td>Pepsi [Drink]</td><td>Tenders Combo [Meal]</td><td>Bo Fries [Side]</td><td>Egg&amp;Cheese [Main]</td><td>4</td><td>.106</td></tr>
+        <tr><td>6</td><td>Meal Combo</td><td>8pc Family Meal</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr><td>7</td><td>Main + Side</td><td>Breast + Mac</td><td>Coffee [Drink]</td><td>Pepsi [Drink]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Tenders Combo [Meal]</td><td>3</td><td>.086</td></tr>
+        <tr style="background:#f0fdf4"><td>8</td><td>Main + Drink</td><td>Breast + Water</td><td><strong>Bo Fries [Side]</strong></td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Bo-Tato Rounds [Side]</td><td>Tenders Combo [Meal]</td><td>3</td><td>.081</td></tr>
+        <tr style="background:#f0fdf4"><td>9</td><td>Main+Side+Drink</td><td>Breast+Mac+Water</td><td><strong>Peach Cobbler [Dessert]</strong></td><td>Bo Berry [Dessert]</td><td>Tenders Combo [Meal]</td><td>Ranch [Condiment]</td><td>&mdash;</td><td>3</td><td>.169</td></tr>
+        <tr><td>10</td><td>Two Mains</td><td>Breast + Leg</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr><td>11</td><td>Two Sides</td><td>Mac + Bo Fries</td><td>Coffee [Drink]</td><td>Pepsi [Drink]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Tenders Combo [Meal]</td><td>3</td><td>.086</td></tr>
+        <tr style="background:#f0fdf4"><td>12</td><td>Two Drinks</td><td>Water + Diet Mtn Dew</td><td><strong>Peach Cobbler [Dessert]</strong></td><td>Bo Berry [Dessert]</td><td>Tenders Combo [Meal]</td><td>Bo Fries [Side]</td><td>Egg&amp;Cheese [Main]</td><td>4</td><td>.089</td></tr>
+        <tr><td>13</td><td>Full meal</td><td>Breast+Mac+Water</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Tenders Combo [Meal]</td><td>Ranch [Condiment]</td><td>&mdash;</td><td>3</td><td>.169</td></tr>
+        <tr style="background:#f0fdf4"><td>14</td><td>Full meal+Dessert</td><td>Breast+Mac+Water+BoBerry</td><td>Tenders Combo [Meal]</td><td><strong>Ranch [Condiment]</strong></td><td colspan="3"><em>only 2 recs &mdash; cart nearly complete</em></td><td>2</td><td>.100</td></tr>
+        <tr><td>15</td><td>Meal+Drink</td><td>Family Meal + Water</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Bo-Tato Rounds [Side]</td><td>Ranch [Condiment]</td><td>3</td><td>.181</td></tr>
+        <tr><td>16</td><td>Breakfast biscuit</td><td>Sausage Bo-Berry Biscuit</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr><td>17</td><td>Two breakfast</td><td>Sausage + Ham Biscuit</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr><td>18</td><td>Chicken item</td><td>Chicken Biscuit</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr><td>19</td><td>Two chicken</td><td>Biscuit + Sandwich</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr><td>20</td><td>Cheap Side</td><td>Mac &amp; Cheese</td><td>Coffee [Drink]</td><td>Pepsi [Drink]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Tenders Combo [Meal]</td><td>3</td><td>.086</td></tr>
+        <tr><td>21</td><td>Premium</td><td>Tenders Snack</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr style="background:#f0fdf4"><td>22</td><td>Just coffee</td><td>Premium Coffee</td><td><strong>Peach Cobbler [Dessert]</strong></td><td>Bo Berry [Dessert]</td><td>Tenders Combo [Meal]</td><td>Bo Fries [Side]</td><td>Egg&amp;Cheese [Main]</td><td>4</td><td>.089</td></tr>
+        <tr><td>23</td><td>Milkshake</td><td>Bo Berry Biscuit</td><td>Coffee [Drink]</td><td>Pepsi [Drink]</td><td>Tenders Combo [Meal]</td><td>Bo Fries [Side]</td><td>Egg&amp;Cheese [Main]</td><td>4</td><td>.106</td></tr>
+        <tr><td>24</td><td>Main+Condiment</td><td>Breast + BBQ Sauce</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr><td>25</td><td>Only condiments</td><td>BBQ + Special Sauce</td><td>Coffee [Drink]</td><td>Pepsi [Drink]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Tenders Combo [Meal]</td><td>3</td><td>.086</td></tr>
+        <tr><td>26</td><td>Family meal</td><td>8pc Family Meal</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr style="background:#f0fdf4"><td>27</td><td>4-item cart</td><td>Breast+Mac+Water+BoBerry</td><td>Tenders Combo [Meal]</td><td><strong>Ranch [Condiment]</strong></td><td colspan="3"><em>only 2 recs</em></td><td>2</td><td>.100</td></tr>
+        <tr><td>28</td><td>Salad</td><td>Tenders Salad</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr><td>29</td><td>Same item x2</td><td>Breast + Breast</td><td>Coffee [Drink]</td><td>Bo Fries [Side]</td><td>Peach Cobbler [Dessert]</td><td>Bo Berry [Dessert]</td><td>Pepsi [Drink]</td><td>3</td><td>.119</td></tr>
+        <tr style="background:#f0fdf4"><td>30</td><td>One of everything</td><td>Breast+Mac+Water+BoBerry+Family</td><td><strong>Ranch [Condiment]</strong></td><td colspan="4"><em>only 1 rec &mdash; cart complete</em></td><td>1</td><td>0</td></tr>
+        <tr class="sum-row"><td colspan="8" style="text-align:right">Summary: 29/30 pass, 0 cart duplicates, avg 3.0 categories</td><td>3.0</td><td>.107</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Green rows highlight scenarios where cart composition visibly changes recommendations. Scenario 8: Main+Drink &rarr; Side tops recs. Scenario 14: nearly-complete cart &rarr; only 2 recs. Scenario 30: complete cart &rarr; only condiment remains.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PER-TICKET GAP ANALYSIS -->
+<!-- ============================================================ -->
+<div class="sec" id="s4">
+  <div class="sh" onclick="document.getElementById('s4').classList.toggle('cl')">
+    <h2>Per-Ticket Gap Analysis (Real Test Evidence)</h2>
+    <div class="mx"><span class="badge bd">10 Works</span><span class="badge bp">5 Partial</span><span class="badge bt">6 Missing</span><span class="ch">&#9660;</span></div>
+  </div>
+  <div class="sb">
+    <table>
+      <thead><tr><th>Ticket</th><th>Requirement</th><th>Evidence</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-208">NDS-208</a></td><td>Train Model (binary, weekly)</td><td>Full pipeline: 266K rows, 365 features, AUC 0.999, item_feature_index: 241 items</td><td><span class="badge bd">WORKS</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-212">NDS-212</a></td><td>Extract Order Context</td><td>Cart analysis correct: categories, counts, needs, completeness across 30 scenarios</td><td><span class="badge bd">WORKS</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-213">NDS-213</a></td><td>Candidate Filter (Business Rules)</td><td>5-stage filter exists. Cart items excluded (236/241 candidates). Not tested with real inventory</td><td><span class="badge bp">PARTIAL</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-214">NDS-214</a></td><td>Engineer Features</td><td>2 bugs fixed on lawrence-cursor-branch. After fix: 30/30 pass, 136 features per candidate</td><td><span class="badge bb">FIXED</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-215">NDS-215</a></td><td>Score Model</td><td>After fix: confidence 0.58-0.77, spread 0.107, 5 unique top-1, cart changes ranking</td><td><span class="badge bd">WORKS</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-216">NDS-216</a></td><td>Ranking &amp; Diversity</td><td>After fix: Main+Side &rarr; Drinks. Main+Drink &rarr; Sides. Full cart &rarr; 1-2 items. 29/30 pass</td><td><span class="badge bd">WORKS</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-204">NDS-204</a></td><td>Location Statistics</td><td>6 locations, latest 2026-03-01. 113 features after merge include loc_stats_*</td><td><span class="badge bd">WORKS</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-206">NDS-206</a></td><td>Weather Cache</td><td>60 parquets, 34 features. But only 0.5% of model gain</td><td><span class="badge bp">LOW IMPACT</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-210">NDS-210</a></td><td>Item Attributes</td><td>136 features per item. is_base_item is #1 feature (gain 1075)</td><td><span class="badge bd">WORKS</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-211">NDS-211</a></td><td>Category Hierarchies</td><td>64 complement pairs hardcoded. No Cosmos tables, no per-org rules, no weekly builder</td><td><span class="badge bp">PARTIAL</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-234">NDS-234</a></td><td>Training Dataset</td><td>7 parquet sources, multi-source merge, leave-one-out creates 266K rows from 9K txns</td><td><span class="badge bd">WORKS</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-273">NDS-273</a></td><td>Condiment Category</td><td>8 categories. Condiment:1 limit works (scenarios 14, 27, 30). 48% Undefined remains</td><td><span class="badge bp">PARTIAL</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-275">NDS-275</a></td><td>Condiment Limit</td><td>Max 1 condiment confirmed. Ranch appears only when cart nearly complete</td><td><span class="badge bd">WORKS</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-226">NDS-226</a></td><td>ECM / Available Items</td><td>241 items from item_feature_index. Cart items excluded correctly</td><td><span class="badge bd">WORKS</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-248">NDS-248</a></td><td>Same recs bug</td><td>Improved: 43% &rarr; 20% identical pairs. 5 unique top-1. Still not fully differentiated</td><td><span class="badge bp">IMPROVED</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-190">NDS-190</a></td><td>LLM Classification</td><td>48% Undefined. Core items misclassified. Biggest quality blocker</td><td><span class="badge bt">FAILING</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-205">NDS-205</a></td><td>Customer Profiles</td><td>0/15 features. frequentcustomerid label-encoded only. Blocks all V3</td><td><span class="badge bt">MISSING</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-237">NDS-237</a></td><td>Item Weather Tags</td><td>No per-item affinity. Weather = 0.5% gain. No filtering by weather appropriateness</td><td><span class="badge bt">MISSING</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-314">NDS-314</a></td><td>subTotal + orderType</td><td>orderType present. subTotal not wired. No price-appropriate filtering</td><td><span class="badge bp">PARTIAL</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-255">NDS-255</a></td><td>Modifier Recs</td><td>Not implemented. No modifier model, features, or API</td><td><span class="badge bt">MISSING</span></td></tr>
+        <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-184">NDS-184</a></td><td>Model Evaluation Page</td><td>BE subtasks done. UI Summary/Detailed tabs not wired</td><td><span class="badge bp">PARTIAL</span></td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ONLINE INFERENCE -->
-<div class="sec" id="sec-online">
-  <div class="sec-hdr" onclick="tog('sec-online')">
-    <h2>Online Real-Time Inference &mdash; 5 Pipeline Steps</h2>
-    <div class="meta"><span class="badge bd">5 Done</span><span class="chv">&#9660;</span></div>
-  </div>
-  <div class="sec-body">
-    <table class="tbl">
-      <thead><tr><th>Step</th><th>Name</th><th>Jira</th><th>Code Status</th><th>Code Reference</th><th>Gap Analysis</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Step 1</strong></td><td class="ts">Extract Order Context</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-212">NDS-212</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">OrderContextService</span>: temporal, cart, weather, guest context.</td><td class="gc"><span class="gt gt-n">No Gap</span> for guest. Missing: customer history, subTotal (NDS-314).</td></tr>
-        <tr><td><strong>Step 2</strong></td><td class="ts">Candidate Items (Business Rules)</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-213">NDS-213</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">CandidateFilter</span> 5 stages: cart, availability, channel, segment, business.</td><td class="gc"><span class="gt gt-n">No Gap</span> All 5 stages match spec.</td></tr>
-        <tr><td><strong>Step 3</strong></td><td class="ts">Engineer Features</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-214">NDS-214</a></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="cr">_build_candidate_batch()</span>: temporal + weather + location + cart + collaborative.</td><td class="gc"><span class="gt gt-n">No Gap</span> for guest. Missing 15 customer features.</td></tr>
-        <tr><td><strong>Step 4</strong></td><td class="ts">Score Model</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-215">NDS-215</a></td><td><span class="badge bd">Complete</span></td><td class="gc">XGBoost <span class="cr">predict_proba</span> + complement + completeness + embedding_sim + daypart_boost.</td><td class="gc"><span class="gt gt-n">No Gap</span> Ensemble approach as spec.</td></tr>
-        <tr><td><strong>Step 5</strong></td><td class="ts">Ranking &amp; Diversity</td><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-216">NDS-216</a></td><td><span class="badge bd">Complete</span></td><td class="gc">Gap-Aware MMR (&lambda;=0.7), gap bonuses, category limits, must-include slots.</td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- CONFIG PAGES -->
-<div class="sec" id="sec-config">
-  <div class="sec-hdr" onclick="tog('sec-config')">
-    <h2>Smart Upsells Configuration &mdash; Pages &amp; Features</h2>
-    <div class="meta"><span class="badge bd">6</span><span class="badge bp">3</span><span class="badge bt">5</span><span class="chv">&#9660;</span></div>
-  </div>
-  <div class="sec-body">
-    <table class="tbl">
-      <thead><tr><th>Feature</th><th>Source</th><th>Status</th><th>Gap</th></tr></thead>
-      <tbody>
-        <tr><td class="ts">Feature Flag (Org level)</td><td>Confluence</td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr><td class="ts">Cold Start Switch</td><td>Confluence</td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> LLM model exists. Auto-transition not wired.</td></tr>
-        <tr><td class="ts">Training Frequency</td><td>Confluence</td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr><td class="ts">Confidence Threshold</td><td>Confluence + NDS-199</td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-i">Minor</span> Needs UI change to "Top N" (1-10).</td></tr>
-        <tr><td class="ts">Model Selector</td><td>Confluence</td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr><td class="ts">Train Model Now</td><td>Confluence</td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr><td class="ts">Training History</td><td>Confluence</td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-i">Minor</span> NDS-96: timestamp bug.</td></tr>
-        <tr><td class="ts">Model Tuning (Enterprise)</td><td>Confluence</td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> Finetuner exists but disabled.</td></tr>
-        <tr><td class="ts">Model Assignment (Enterprise)</td><td>Confluence</td><td><span class="badge bt">Not Started</span></td><td class="gc"><span class="gt gt-m">Moderate</span> No per-location model assignment.</td></tr>
-        <tr><td class="ts">Evaluation &mdash; Summary Tab</td><td>Confluence + NDS-184</td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> BE done. Missing UI wiring.</td></tr>
-        <tr><td class="ts">Evaluation &mdash; Detailed Tab</td><td>Confluence + NDS-184</td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> BE done. Missing UI views.</td></tr>
-        <tr><td class="ts">subTotal + orderType in API</td><td>NDS-314</td><td><span class="badge bt">Not Started</span></td><td class="gc"><span class="gt gt-c">CRITICAL</span> Missing from UpsellParameters.</td></tr>
-        <tr><td class="ts">Modifier Recommendations</td><td>NDS-255</td><td><span class="badge bt">Not Started</span></td><td class="gc"><span class="gt gt-m">Moderate</span> No modifier model.</td></tr>
-        <tr><td class="ts">Nav: "Smart Upsells" rename</td><td>NDS-199</td><td><span class="badge bt">Not Started</span></td><td class="gc"><span class="gt gt-i">Minor</span> NDS-252 revert bug.</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- PERFORMANCE -->
-<div class="perf">
-  <h3>Performance Assessment &mdash; Bojangles Waxhaw Test Readiness</h3>
-  <div class="pg">
-    <div class="pc go">
-      <h4>Should Work Well (Strengths)</h4>
-      <ul>
-        <li><strong>Full V2 Guest Pipeline</strong> &mdash; 5/5 online inference steps</li>
-        <li><strong>7 parquet data sources</strong> &mdash; transactions, menu, location, upsell analysis, weather, customers, location stats</li>
-        <li><strong>Word2Vec embeddings</strong> &mdash; 128-dim captures co-purchase patterns</li>
-        <li><strong>NDS-213 filtering</strong> &mdash; 5-stage candidate reduction</li>
-        <li><strong>NDS-216 Gap-Aware MMR</strong> &mdash; drink/side/dessert diversity</li>
-        <li><strong>Condiment control</strong> &mdash; keyword filter + max 1 (NDS-273/275)</li>
-        <li><strong>Temporal awareness</strong> &mdash; cyclical encoding, daypart flags</li>
-        <li><strong>Weather features</strong> &mdash; comfort, temp buckets, food/drink suggestions</li>
-        <li><strong>ECM support</strong> &mdash; location-specific available items (NDS-226)</li>
-        <li><strong>Diagnostics</strong> &mdash; debug_pipeline + evaluate_model_quality</li>
-      </ul>
-    </div>
-    <div class="pc ri">
-      <h4>Likely Problem Areas (Risks)</h4>
-      <ul>
-        <li><strong>Same recs regardless of cart</strong> &mdash; if cart embeddings have low importance (NDS-248)</li>
-        <li><strong>No weather-item affinity</strong> &mdash; can't prefer iced tea on hot days</li>
-        <li><strong>Hardcoded complement scores</strong> &mdash; may not match Bojangles patterns</li>
-        <li><strong>Low negative sampling</strong> &mdash; NEG_PER_TXN=2 causes popularity bias</li>
-        <li><strong>Feature NaN at 40%</strong> &mdash; reduced signal strength</li>
-        <li><strong>No customer personalization</strong> &mdash; population-level only</li>
-        <li><strong>No subTotal in API</strong> &mdash; no price appropriateness</li>
-        <li><strong>Cold Start not wired</strong> &mdash; new locations blocked</li>
-        <li><strong>Category limit inconsistency</strong> &mdash; 3 configs, different values</li>
-        <li><strong>Finetuning disabled</strong> &mdash; default hyperparameters only</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<!-- FILTER BAR -->
-<div class="fb">
-  <label>Filter:</label>
-  <button class="fbtn a" onclick="ft('all')">All Tickets</button>
-  <button class="fbtn" onclick="ft('done')">Implemented</button>
-  <button class="fbtn" onclick="ft('partial')">Partial</button>
-  <button class="fbtn" onclick="ft('missing')">Not Started</button>
-  <button class="fbtn" onclick="ft('critical')">Critical Gaps</button>
-</div>
-
-<!-- V2 TICKETS -->
-<div class="sec" id="sec-v2">
-  <div class="sec-hdr" onclick="tog('sec-v2')">
-    <h2>V2 Jira Tickets &mdash; Guest Enhancements (NDS-201)</h2>
-    <div class="meta"><span class="badge bd">14 Done</span><span class="badge bp">2 Partial</span><span class="badge bt">4 Missing</span><span class="chv">&#9660;</span></div>
-  </div>
-  <div class="sec-body">
-    <table class="tbl">
-      <thead><tr><th>Key</th><th>Summary</th><th>Type</th><th>Jira</th><th>Code</th><th>Gap</th></tr></thead>
-      <tbody>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-204">NDS-204</a></td><td class="ts">Create Location Statistics</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-206">NDS-206</a></td><td class="ts">Hourly Weather Cache</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-208">NDS-208</a></td><td class="ts">Train Model (weekly)</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-210">NDS-210</a></td><td class="ts">Item Attributes</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-212">NDS-212</a></td><td class="ts">Extract Order Context</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-213">NDS-213</a></td><td class="ts">Candidate Items (Business Rules)</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-214">NDS-214</a></td><td class="ts">Engineer Features</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-215">NDS-215</a></td><td class="ts">Score Model</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-216">NDS-216</a></td><td class="ts">Ranking &amp; Diversity</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-226">NDS-226</a></td><td class="ts">ECM Support</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-234">NDS-234</a></td><td class="ts">Training Dataset</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-273">NDS-273</a></td><td class="ts">Condiment Category</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bp">QA</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-267">NDS-267</a></td><td class="ts">DataStorage ETL</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-242">NDS-242</a></td><td class="ts">Eval UI Update</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="partial" data-c="1"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-211">NDS-211</a></td><td class="ts">Category Hierarchies</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-c">CRITICAL</span> Hardcoded only. No Cosmos tables.</td></tr>
-        <tr data-i="partial"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-248">NDS-248</a></td><td class="ts">Same recs bug</td><td><span class="tt tt-b">Bug</span></td><td><span class="badge bd">Closed</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> Needs Waxhaw validation.</td></tr>
-        <tr data-i="missing" data-c="1"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-237">NDS-237</a></td><td class="ts">Item Weather Tags</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-c">CRITICAL</span> No per-item weather affinity.</td></tr>
-        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-150">NDS-150</a></td><td class="ts">Review biases</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-m">Moderate</span></td></tr>
-        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-120">NDS-120</a></td><td class="ts">Feedback Loop</td><td><span class="tt tt-t">Task</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
-        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-89">NDS-89</a></td><td class="ts">More weather params</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- V3 TICKETS -->
-<div class="sec" id="sec-v3">
-  <div class="sec-hdr" onclick="tog('sec-v3')">
-    <h2>V3 Jira Tickets &mdash; Known Guest + Modifiers (NDS-202)</h2>
-    <div class="meta"><span class="badge bd">3 Done</span><span class="badge bp">4 Partial</span><span class="badge bt">8 Missing</span><span class="chv">&#9660;</span></div>
-  </div>
-  <div class="sec-body">
-    <table class="tbl">
-      <thead><tr><th>Key</th><th>Summary</th><th>Type</th><th>Jira</th><th>Code</th><th>Gap</th></tr></thead>
-      <tbody>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-301">NDS-301</a></td><td class="ts">Backend Subtasks (BE-1 to BE-17)</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bd">Done</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-312">NDS-312</a></td><td class="ts">BE-Model Training page</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bd">Done</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="done"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-275">NDS-275</a></td><td class="ts">Condiment limit in ML</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bd">Done</span></td><td><span class="badge bd">Complete</span></td><td class="gc"><span class="gt gt-n">No Gap</span></td></tr>
-        <tr data-i="partial"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-294">NDS-294</a></td><td class="ts">Review ML Implementation</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bp">IN DEV</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> Current review task.</td></tr>
-        <tr data-i="partial"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-184">NDS-184</a></td><td class="ts">Model Evaluation (Summary + Detail)</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> BE done. UI not wired.</td></tr>
-        <tr data-i="partial"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-190">NDS-190</a></td><td class="ts">LLM Classification + HITL</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-m">Moderate</span> GMS classification works. HITL feedback missing.</td></tr>
-        <tr data-i="partial"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-199">NDS-199</a></td><td class="ts">UI Cleanup (9 ACs)</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bp">Partial</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
-        <tr data-i="missing" data-c="1"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-205">NDS-205</a></td><td class="ts">Customer Profiles</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-c">CRITICAL</span> 0/15 customer features. Blocks V3.</td></tr>
-        <tr data-i="missing" data-c="1"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-314">NDS-314</a></td><td class="ts">Cart total + Order type in API</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bt">To Do</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-c">CRITICAL</span> subTotal + orderType missing.</td></tr>
-        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-255">NDS-255</a></td><td class="ts">Modifier Recommendations</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-m">Moderate</span></td></tr>
-        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-259">NDS-259</a></td><td class="ts">HITL for Modifiers</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bt">To Do</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
-        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-264">NDS-264</a></td><td class="ts">Modifier Rec Service</td><td><span class="tt tt-st">Subtask</span></td><td><span class="badge bt">To Do</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
-        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-251">NDS-251</a></td><td class="ts">Category Relevance dynamic text</td><td><span class="tt tt-b">Bug</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
-        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-252">NDS-252</a></td><td class="ts">Smart Upsells name reverts</td><td><span class="tt tt-b">Bug</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
-        <tr data-i="missing"><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-271">NDS-271</a></td><td class="ts">EST completion time</td><td><span class="tt tt-s">Story</span></td><td><span class="badge bt">Open</span></td><td><span class="badge bt">Missing</span></td><td class="gc"><span class="gt gt-i">Minor</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<div style="text-align:center;padding:32px;font-size:11px;color:var(--mut)">
-  SUS Gap Analysis &mdash; Generated 2026-03-01 &mdash; grubbrr/grubbrr-sus-service &mdash; Branch: develop + nds-208
+<div style="text-align:center;padding:20px;font-size:10px;color:var(--m)">
+  SUS Gap Analysis &mdash; 2026-03-02 &mdash; Baseline: develop &mdash; Fix: lawrence-cursor-branch (5a2d4b7) &mdash; Test: Bojangles Waxhaw
 </div>
 
 </div>
 <script>
-function tog(id){document.getElementById(id).classList.toggle('cl')}
-function ft(t){document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('a'));event.target.classList.add('a');document.querySelectorAll('.tbl tbody tr').forEach(r=>{const i=r.getAttribute('data-i'),c=r.getAttribute('data-c');if(t==='all'){r.style.display='';return}if(t==='done'&&i==='done'){r.style.display='';return}if(t==='partial'&&i==='partial'){r.style.display='';return}if(t==='missing'&&i==='missing'){r.style.display='';return}if(t==='critical'&&c==='1'){r.style.display='';return}r.style.display='none'})}
 </script>
 </body>
 </html>
