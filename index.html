@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SUS Gap Analysis — NDS-208 vs Full Architecture Spec</title>
+<title>SUS Gap Analysis — NDS-208 vs Full Architecture Spec (with Live Test Results)</title>
 <style>
 :root{--done:#16a34a;--done-bg:#dcfce7;--prog:#d97706;--prog-bg:#fef3c7;--todo:#dc2626;--todo-bg:#fee2e2;--gap:#9333ea;--gap-bg:#f3e8ff;--bg:#f8fafc;--card:#fff;--bdr:#e2e8f0;--txt:#1e293b;--mut:#64748b;--head:#0f172a;--acc:#2563eb}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -95,7 +95,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="sub">NDS-208 / Develop Branch Implementation vs Full Confluence Architecture Spec (V1 / V2 / V3)</div>
   <div class="hdr-meta">
     <span>Branch: <strong>develop + nds-208</strong></span>
-    <span>Generated: <strong>2026-03-01</strong></span>
+    <span>Generated: <strong>2026-03-02</strong> (updated with live test results)</span>
     <span>Source: <strong>Jira NDS + Confluence Architecture Doc + Google Docs</strong></span>
     <span>Test Target: <strong>Bojangles Waxhaw (loc-26335157)</strong></span>
   </div>
@@ -179,6 +179,101 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     <div class="sp"><strong>Confluence Spec:</strong> Cold Start for new locations: LLM classifies items, uses Menu Items + Classifications + Weather + Daypart + Basket as input. Auto-transition to XGBoost at volume threshold.</div>
     <div class="cu"><strong>Current Code:</strong> <span class="cr">LlmRecommendationModel</span> exists and factory routes to it. But auto-transition and threshold logic not wired.</div>
     <div class="im"><strong>Impact:</strong> New locations cannot get recommendations until XGBoost model is trained.</div>
+  </div>
+</div>
+
+<!-- ======================== LIVE TEST RESULTS ======================== -->
+<div class="crit-sec" style="border-color:#7c3aed;background:#faf5ff">
+  <h3 style="color:#7c3aed">&#128300; Live Test Results &mdash; Bojangles Waxhaw Model (Feb 28 2026)</h3>
+  <p style="font-size:12px;color:var(--mut);margin-bottom:16px">
+    Tested against latest deployed model: <code>202609_1772288379507-grubrgb.joblib</code> (23.5MB, trained 2026-02-28).
+    Model loaded from Azure Blob and run locally against 7 cart scenarios.
+  </p>
+
+  <div class="ci" style="border-color:#7c3aed;background:#f5f0ff">
+    <h4>Model Identity</h4>
+    <table style="font-size:12px;width:100%;border-collapse:collapse;margin-top:6px">
+      <tr><td style="padding:3px 8px;font-weight:600;width:220px">Objective</td><td style="padding:3px 8px"><code>multi:softprob</code> (133-class multiclass) &mdash; NOT binary</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Features</td><td style="padding:3px 8px">335 features</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Training Rows</td><td style="padding:3px 8px">18,380</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Catalog Items</td><td style="padding:3px 8px">137 (across 133 model classes + Other)</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Trees</td><td style="padding:3px 8px">200 (max_depth=4)</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">model_type key</td><td style="padding:3px 8px;color:var(--todo);font-weight:600">NOT PRESENT &rarr; defaults to "multiclass" &rarr; binary _predict_binary() path NEVER invoked</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">item_feature_index</td><td style="padding:3px 8px;color:var(--todo);font-weight:600">EMPTY (0 items) &rarr; binary path has no candidate data</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Hit Rate@5</td><td style="padding:3px 8px">40.4% (passes threshold)</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">NDCG@5</td><td style="padding:3px 8px">0.28 (passes threshold)</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:600">Same-Category Violation</td><td style="padding:3px 8px;color:var(--todo);font-weight:600">77.3% (fails diversity)</td></tr>
+    </table>
+  </div>
+
+  <div class="ci" style="border-color:#dc2626">
+    <h4 style="color:var(--todo)">TEST RESULT: Cart Diversity &mdash; FAIL</h4>
+    <p style="font-size:12px;margin-bottom:8px">7 cart scenarios tested. <strong>9 out of 21 pairs produced IDENTICAL top-5 recommendations.</strong> The model is essentially a popularity predictor.</p>
+    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
+      <thead><tr style="background:#fee2e2"><th style="padding:4px 8px;text-align:left">Cart Scenario</th><th style="padding:4px 8px;text-align:left">Top 5 Recommendations</th><th style="padding:4px 8px">Score Range</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:4px 8px;font-weight:600">Empty Cart</td><td style="padding:4px 8px">Starry [Drink], Bo's Chicken Biscuit [Main], BBQ Sauce [Undefined], Cole Slaw [Undefined], Chocolate Milkshake [Dessert]</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.103</td></tr>
+        <tr style="background:#fff7f7"><td style="padding:4px 8px;font-weight:600">Single Main (Chicken Sandwich)</td><td style="padding:4px 8px;color:var(--todo)">IDENTICAL to Empty Cart (scores differ by 0.00001)</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.103</td></tr>
+        <tr style="background:#fff7f7"><td style="padding:4px 8px;font-weight:600">Single Drink (Water)</td><td style="padding:4px 8px;color:var(--todo)">IDENTICAL to Empty Cart</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.103</td></tr>
+        <tr><td style="padding:4px 8px;font-weight:600">Main + Side</td><td style="padding:4px 8px">Starry [Drink], Bo's Chicken Biscuit [Main], Cole Slaw [Undefined], Choc Milkshake [Dessert], Grilled Chicken Salad [Main]</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.105</td></tr>
+        <tr style="background:#fff7f7"><td style="padding:4px 8px;font-weight:600">Main + Side + Drink</td><td style="padding:4px 8px;color:var(--todo)">IDENTICAL to Main + Side</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.104</td></tr>
+        <tr style="background:#fff7f7"><td style="padding:4px 8px;font-weight:600">Two Mains</td><td style="padding:4px 8px;color:var(--todo)">IDENTICAL to Main + Side</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.105</td></tr>
+        <tr style="background:#fff7f7"><td style="padding:4px 8px;font-weight:600">Meal Combo</td><td style="padding:4px 8px;color:var(--todo)">IDENTICAL to Empty Cart</td><td style="padding:4px 8px;text-align:center">0.001 &ndash; 0.103</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:var(--todo);margin-top:8px;font-weight:600">Root Cause: Multiclass model predicts P(item=class_j | features). With 133 classes and cart embeddings contributing only marginal signal, the model converges to population-level item popularity regardless of cart contents.</p>
+  </div>
+
+  <div class="ci" style="border-color:#d97706">
+    <h4 style="color:var(--prog)">Feature Importance Analysis</h4>
+    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
+      <thead><tr style="background:#fef3c7"><th style="padding:4px 8px;text-align:left">Feature Category</th><th style="padding:4px 8px;text-align:right">% of Total Gain</th><th style="padding:4px 8px;text-align:left">Assessment</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:3px 8px">Cart features (cart_embedding_*, cart_popularity_*)</td><td style="padding:3px 8px;text-align:right;font-weight:600">42.9%</td><td style="padding:3px 8px;color:var(--done)">High importance in training &mdash; but multiclass objective dilutes the signal at inference</td></tr>
+        <tr><td style="padding:3px 8px">Collaborative features (embeddings, co-occurrence)</td><td style="padding:3px 8px;text-align:right;font-weight:600">42.9%</td><td style="padding:3px 8px;color:var(--done)">High &mdash; embeddings capture item relationships</td></tr>
+        <tr><td style="padding:3px 8px">Other (category, upsell stats, price)</td><td style="padding:3px 8px;text-align:right;font-weight:600">13.1%</td><td style="padding:3px 8px">Moderate</td></tr>
+        <tr><td style="padding:3px 8px">Temporal features (hour, daypart, cyclical)</td><td style="padding:3px 8px;text-align:right;font-weight:600;color:var(--todo)">0.7%</td><td style="padding:3px 8px;color:var(--todo)">Negligible &mdash; daypart has almost no influence</td></tr>
+        <tr><td style="padding:3px 8px">Weather features (temp, humidity, comfort)</td><td style="padding:3px 8px;text-align:right;font-weight:600;color:var(--todo)">0.5%</td><td style="padding:3px 8px;color:var(--todo)">Negligible &mdash; weather investment not paying off in model</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;margin-top:6px">Top 5 features by gain: cart_popularity_max (64.3), upsell_is_average (62.8), item_category_llm_0 (41.5), item_category_llm_5 (38.0), item_category_llm_3 (27.7)</p>
+  </div>
+
+  <div class="ci" style="border-color:#dc2626">
+    <h4 style="color:var(--todo)">Item Classification Breakdown &mdash; 48% Undefined</h4>
+    <table style="font-size:11px;width:100%;border-collapse:collapse;margin-top:6px">
+      <thead><tr style="background:#fee2e2"><th style="padding:4px 8px;text-align:left">Category</th><th style="padding:4px 8px;text-align:right">Count</th><th style="padding:4px 8px;text-align:right">%</th><th style="padding:4px 8px;text-align:left">Assessment</th></tr></thead>
+      <tbody>
+        <tr style="background:#fff7f7"><td style="padding:3px 8px;font-weight:600;color:var(--todo)">Undefined</td><td style="padding:3px 8px;text-align:right;font-weight:700;color:var(--todo)">66</td><td style="padding:3px 8px;text-align:right;color:var(--todo)">48.2%</td><td style="padding:3px 8px;color:var(--todo)">CRITICAL &mdash; includes Bo-Tato Rounds, Bo's Chicken Sandwich Combo, Mtn Dew, Pepsi, BBQ Sauce, etc.</td></tr>
+        <tr><td style="padding:3px 8px">Drink</td><td style="padding:3px 8px;text-align:right">19</td><td style="padding:3px 8px;text-align:right">13.9%</td><td style="padding:3px 8px">OK</td></tr>
+        <tr><td style="padding:3px 8px">Meal</td><td style="padding:3px 8px;text-align:right">16</td><td style="padding:3px 8px;text-align:right">11.7%</td><td style="padding:3px 8px">OK</td></tr>
+        <tr><td style="padding:3px 8px">Main</td><td style="padding:3px 8px;text-align:right">13</td><td style="padding:3px 8px;text-align:right">9.5%</td><td style="padding:3px 8px">OK</td></tr>
+        <tr><td style="padding:3px 8px">Side</td><td style="padding:3px 8px;text-align:right">8</td><td style="padding:3px 8px;text-align:right">5.8%</td><td style="padding:3px 8px">OK</td></tr>
+        <tr><td style="padding:3px 8px">Dessert</td><td style="padding:3px 8px;text-align:right">8</td><td style="padding:3px 8px;text-align:right">5.8%</td><td style="padding:3px 8px">OK</td></tr>
+        <tr><td style="padding:3px 8px">Condiment</td><td style="padding:3px 8px;text-align:right">7</td><td style="padding:3px 8px;text-align:right">5.1%</td><td style="padding:3px 8px">OK</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;margin-top:6px">Many core Bojangles items are Undefined: Bo-Tato Rounds, Dirty Rice, Chicken Sandwich Combo, Mtn Dew, Pepsi Zero, BBQ Sauce. This breaks NDS-213 filtering, NDS-216 diversity/gap bonuses, and complement scoring. The LLM classification (NDS-190) has duplicate item IDs &mdash; the same item name exists under multiple IDs with different classifications.</p>
+  </div>
+
+  <div class="ci" style="border-color:#16a34a;background:#f0fdf4">
+    <h4 style="color:var(--done)">ID Translation / Masterlookup &mdash; VERIFIED CORRECT</h4>
+    <p style="font-size:12px">Target encoder classes are <strong>item IDs</strong> (132/133 match item_to_category). <code>item_id_to_name</code> correctly maps 137 items. <code>item_to_category</code> keyed by item IDs. The multiclass inference path works with IDs throughout. No ID translation bug found.</p>
+    <p style="font-size:12px;margin-top:4px">The issue is NOT ID translation &mdash; it's that <strong>model_type is missing from the artifact</strong> so the binary path (<code>_predict_binary</code>) is never invoked, and <code>item_feature_index</code> is empty (0 items) so the binary path would have no candidates even if called.</p>
+  </div>
+
+  <div class="ci" style="border-color:#2563eb;background:#eff6ff">
+    <h4 style="color:var(--acc)">What NDS-208 Branch Gets Right (Not Yet Deployed)</h4>
+    <p style="font-size:12px">The nds-208 branch has the right architecture but the binary training pipeline (<code>training_pipeline.py</code>) hasn't been merged to develop or used to produce the deployed model:</p>
+    <ul style="font-size:11px;padding-left:18px;margin-top:6px">
+      <li><strong>Binary classification</strong> (P(accept|cart,candidate)) instead of multiclass (P(item=j|features)) &mdash; directly models cart-candidate relevance</li>
+      <li><strong>Leave-one-out training</strong> with negative sampling &mdash; creates proper binary labels</li>
+      <li><strong>Complement scoring</strong> at inference &mdash; boosts complementary categories, penalizes same-category</li>
+      <li><strong>Gap-Aware MMR ranking</strong> &mdash; ensures drink/side/dessert diversity in final set</li>
+      <li><strong>CandidateFilter</strong> with 5-stage business rules &mdash; reduces candidate pool before scoring</li>
+      <li><strong>item_feature_index</strong> would store per-item features for binary candidate scoring</li>
+    </ul>
+    <p style="font-size:12px;margin-top:6px;font-weight:600;color:var(--acc)">Action Required: Train a binary model using the nds-208 pipeline, save with model_type="binary" and populated item_feature_index, then deploy.</p>
   </div>
 </div>
 
