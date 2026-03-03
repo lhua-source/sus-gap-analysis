@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUS Leadership Dashboard — V2 Story Gap Analysis</title>
+<style>
+:root{--g:#16a34a;--gbg:#dcfce7;--y:#d97706;--ybg:#fef3c7;--r:#dc2626;--rbg:#fee2e2;--b:#2563eb;--bg:#f8fafc;--c:#fff;--bd:#e2e8f0;--t:#1e293b;--m:#64748b;--h:#0f172a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--t);line-height:1.55;font-size:13px}
+.w{max-width:1440px;margin:0 auto;padding:20px}
+.hd{background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff;padding:32px 28px;border-radius:14px;margin-bottom:24px}
+.hd h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.hd .sub{font-size:13px;opacity:.75;margin-bottom:12px}
+.hd-m{display:flex;gap:24px;flex-wrap:wrap;font-size:11px;opacity:.65}
+.hd-m strong{opacity:1}
+.bx{background:var(--c);border:1px solid var(--bd);border-radius:10px;padding:18px;margin-bottom:22px}
+.bx h3{font-size:14px;font-weight:700;color:var(--h);margin-bottom:10px}
+.badge{display:inline-flex;padding:2px 8px;border-radius:5px;font-size:9px;font-weight:600;white-space:nowrap}
+.bd{background:var(--gbg);color:var(--g)}.bp{background:var(--ybg);color:var(--y)}.bt{background:var(--rbg);color:var(--r)}.bb{background:#dbeafe;color:var(--b)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 10px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--m);border-bottom:2px solid var(--bd);background:#f8fafc;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--bd);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover{background:#f8fafc}
+.tk{font-weight:700;color:var(--b);font-size:11px;white-space:nowrap}
+.tk a{color:var(--b);text-decoration:none}.tk a:hover{text-decoration:underline}
+.cr{font-family:'Cascadia Code',monospace;font-size:10px;background:#f1f5f9;padding:1px 4px;border-radius:3px;color:#475569}
+.note{font-size:11px;color:var(--m);padding:10px 14px;background:#f8fafc;border-radius:8px;border-left:3px solid var(--bd);margin:10px 0}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:22px}
+.sc{background:var(--c);border-radius:10px;padding:14px;border:1px solid var(--bd)}
+.sc .l{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--m);font-weight:600}
+.sc .v{font-size:26px;font-weight:700;margin:2px 0}
+.sc .d{font-size:10px;color:var(--m)}
+.vg .v{color:var(--g)}.vy .v{color:var(--y)}.vr .v{color:var(--r)}
+.gap-row td:nth-child(4){max-width:280px}
+.sec{margin-bottom:22px}
+.sh{background:var(--c);border:1px solid var(--bd);border-radius:10px 10px 0 0;padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.sh:hover{background:#f8fafc}
+.sh h2{font-size:15px;font-weight:700;color:var(--h)}
+.ch{font-size:14px;color:var(--m);transition:transform .2s}
+.sec.cl .ch{transform:rotate(-90deg)}.sec.cl .sb{display:none}
+.sb{border:1px solid var(--bd);border-top:none;border-radius:0 0 10px 10px;overflow-x:auto}
+.sum-row{background:#f1f5f9;font-weight:600}
+@media(max-width:900px){.sg{grid-template-columns:repeat(2,1fr)}}
+@media print{.sec.cl .sb{display:block!important}}
+</style>
+</head>
+<body>
+<div class="w">
+
+<div class="hd">
+  <h1>Smart Upsells V2 &mdash; Story-by-Story Gap Analysis</h1>
+  <div class="sub">Develop branch (as-is) vs V2 Spec (to-be) &mdash; with file-level traceability</div>
+  <div class="hd-m">
+    <span>Branch: <strong>develop</strong> (nds-208 merged)</span>
+    <span>Date: <strong>2026-03-03</strong></span>
+    <span>Tested: <strong>func host start, 30 scenarios, Bojangles Waxhaw</strong></span>
+    <span>Model: <strong>March binary (202610_1772430807546)</strong></span>
+  </div>
+</div>
+
+<div class="sg">
+  <div class="sc vg"><div class="l">Stories Implemented</div><div class="v">9 / 15</div><div class="d">Code exists and runs</div></div>
+  <div class="sc vy"><div class="l">Partial / Needs Work</div><div class="v">3</div><div class="d">Code exists but gaps remain</div></div>
+  <div class="sc vr"><div class="l">Not Started</div><div class="v">3</div><div class="d">No code for this story</div></div>
+  <div class="sc vg"><div class="l">API Test</div><div class="v">29/30</div><div class="d">Real func host results</div></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- V2 STORY-BY-STORY GAP ANALYSIS -->
+<!-- ============================================================ -->
+<div class="bx" style="border:2px solid var(--b)">
+<h3>V2 Stories: Develop (As-Is) vs Spec (To-Be)</h3>
+
+<table class="gap-row">
+<thead><tr><th>Story</th><th>Name</th><th>As-Is (develop)</th><th>To-Be (spec gap)</th><th>File(s)</th><th>Status</th></tr></thead>
+<tbody>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-204">NDS-204</a></td>
+<td>Create Location Statistics</td>
+<td>Job runs. 6 locations. <span class="cr">loc_stats_*</span> features in training (acceptance rates, price sensitivity, peak hours). Latest data: Mar 2.</td>
+<td>None &mdash; fully matches spec. 11 columns, 13-month data, daily job.</td>
+<td><span class="cr">services/location_statistics_service.py</span><br><span class="cr">data_prep.py</span> (consumer)</td>
+<td><span class="badge bd">DONE</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-205">NDS-205</a></td>
+<td>Create Customer Profiles</td>
+<td><span class="cr">frequentcustomerid</span> loaded from parquet but only label-encoded as integer. No profile computation. No nightly job.</td>
+<td><strong>0/15 customer features missing:</strong> order history (count, LTV, recency), preferences (top items, favorites, never-ordered), behavioral patterns (preferred hours/days), engagement (acceptance rate), segmentation (price sensitivity, lifecycle). Redis cache. Daily job.</td>
+<td>No file exists</td>
+<td><span class="badge bt">NOT STARTED</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-206">NDS-206</a></td>
+<td>Create Hourly Weather Cache</td>
+<td>Weather timer job runs. 60 parquets. 34 features: temp, humidity, comfort_score, rain, wind, food/drink weather flags. Stored in Cosmos.</td>
+<td>Weather features contribute only <strong>0.5% of model gain</strong>. Need to investigate why. Item-level weather tags (NDS-237) would make weather useful.</td>
+<td><span class="cr">timer_endpoints/weather_updater.py</span><br><span class="cr">repositories/weather_repository.py</span><br><span class="cr">enhanced_feature_engineering.py</span></td>
+<td><span class="badge bd">DONE</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-208">NDS-208</a></td>
+<td>Train Model (5 steps)</td>
+<td>Full binary pipeline: 7 parquets &rarr; merge &rarr; leave-one-out &rarr; neg sampling &rarr; features &rarr; XGBoost binary. 266K rows, 360 features. AUC 0.999. Model saved with <span class="cr">model_type=binary</span> and <span class="cr">item_feature_index</span>.</td>
+<td><strong>Score compression:</strong> confidence 0.993-0.999 for all candidates (0.003 spread). Model can't meaningfully rank. Needs: higher NEG_PER_TXN (&gt;3), calibration, or temperature scaling. Also: finetuning disabled (<span class="cr">ENABLE_FINETUNING=False</span>).</td>
+<td><span class="cr">xgboost/training_pipeline.py</span><br><span class="cr">xgboost/cpu_training.py</span><br><span class="cr">xgboost/data_prep.py</span><br><span class="cr">xgboost/cpu_data_conversion.py</span></td>
+<td><span class="badge bd">DONE</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-210">NDS-210</a></td>
+<td>Create Item Attributes</td>
+<td><span class="cr">item_feature_index</span> has 136 features per item: 128-dim embedding, co-occurrence, popularity, similarity. <span class="cr">is_base_item</span> is #1 feature by gain. Static + derived + computed scores.</td>
+<td>None major. Could add more derived attributes (trending velocity, seasonal patterns).</td>
+<td><span class="cr">services/item_attributes_service.py</span><br><span class="cr">xgboost/collaborative_features.py</span></td>
+<td><span class="badge bd">DONE</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-211">NDS-211</a></td>
+<td>Create Category Hierarchies</td>
+<td>64 complement score pairs hardcoded in <span class="cr">cpu_training.py</span> (Main-Side: 0.95, Main-Main: -0.50). <span class="cr">category_hierarchies.json</span> saved to blob (382KB). Category limits in 3 configs.</td>
+<td><strong>Not data-driven.</strong> Spec: two Cosmos tables (Rules + Metadata), weekly builder job. Missing: per-org rules, price buckets, UpsellPath[], NeedsCategory[]. Category limits inconsistent across <span class="cr">BusinessRulesConfig</span>, <span class="cr">RankingConfig</span>, <span class="cr">diversity_rules</span>.</td>
+<td><span class="cr">xgboost/cpu_training.py</span> (lines 28-136)<br><span class="cr">models/candidate_filter_result.py</span><br><span class="cr">models/ranking_result.py</span></td>
+<td><span class="badge bp">PARTIAL</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-212">NDS-212</a></td>
+<td>Extract Order Context</td>
+<td><span class="cr">OrderContextService</span>: temporal (hour, daypart, cyclical), cart analysis (categories, counts, needs, completeness), weather, guest context. Tested across 30 scenarios &mdash; correctly identifies needs_drink, needs_side, needs_dessert.</td>
+<td>Missing: customer history lookup (for known guests), subTotal context (NDS-314).</td>
+<td><span class="cr">services/order_context_service.py</span><br><span class="cr">models/order_context.py</span></td>
+<td><span class="badge bd">DONE</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-213">NDS-213</a></td>
+<td>Candidate Items (Business Rules)</td>
+<td><span class="cr">_filter_candidates()</span> in <span class="cr">cpu_predict.py</span>: cart exclusion, category limits, condiment filter, deduplication. 75 &rarr; ~70 candidates after filtering. GMS <span class="cr">getAvailableItemsAndCombosByLocationV2</span> for availability.</td>
+<td><strong>Bug:</strong> <span class="cr">_filter_candidates</span> calls <span class="cr">available_items.items()</span> but receives list when GMS returns 404. Fixed on <span class="cr">lawrence-cursor-branch</span>. Missing: daypart availability, channel filtering, delivery exclusions, price-shock filter.</td>
+<td><span class="cr">xgboost/cpu_predict.py</span> (line 1079)<br><span class="cr">clients/gms_client.py</span></td>
+<td><span class="badge bp">PARTIAL</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-214">NDS-214</a></td>
+<td>Engineer Features for Candidates</td>
+<td><span class="cr">_extract_cart_features()</span> builds cart embedding from item_feature_index. <span class="cr">_extract_weather_features()</span> from Cosmos. <span class="cr">_extract_temporal_features()</span> from localDate. Per-candidate features from <span class="cr">item_feature_index</span> (136 dims). Batch built with numpy for speed.</td>
+<td>None major for code structure. Quality issue: features produce compressed scores (0.993-0.999). Possible cause: feature scaling, insufficient negative examples, or overfit embeddings.</td>
+<td><span class="cr">xgboost/cpu_predict.py</span> (lines 979-1075)<br><span class="cr">xgboost/collaborative_features.py</span><br><span class="cr">xgboost/enhanced_feature_engineering.py</span></td>
+<td><span class="badge bd">DONE</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-215">NDS-215</a></td>
+<td>Score Model</td>
+<td>XGBoost <span class="cr">predict_proba[:, 1]</span> for binary scoring. Top-K selection. Complement scoring as post-processing.</td>
+<td><strong>Score compression:</strong> all candidates score 0.99+. Need calibration or temperature scaling. Complement scoring exists but can't overcome the compressed base scores.</td>
+<td><span class="cr">xgboost/cpu_predict.py</span> (predict_binary method)</td>
+<td><span class="badge bd">DONE</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-216">NDS-216</a></td>
+<td>Ranking &amp; Diversity</td>
+<td>Complement scoring + candidate filtering + top-N selection. Results show 2 categories avg in API test.</td>
+<td>Spec: Gap-Aware MMR (&lambda;=0.7), gap bonuses (Drink +0.15, Side +0.12, Dessert +0.10). Develop's refactored code may not include the full MMR from nds-208. Need to verify gap bonus logic in develop's <span class="cr">cpu_predict.py</span>.</td>
+<td><span class="cr">xgboost/cpu_predict.py</span></td>
+<td><span class="badge bp">PARTIAL</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-226">NDS-226</a></td>
+<td>ECM Support</td>
+<td>GMS <span class="cr">getAvailableItemsAndCombosByLocationV2</span> returns available items per location. Passed to <span class="cr">predict_binary</span>. Only available items scored as candidates.</td>
+<td>None &mdash; works as specified. Location-specific filtering at inference time.</td>
+<td><span class="cr">xgboost/xgboost_model.py</span> (_fetch_available_items_safe)<br><span class="cr">clients/gms_client.py</span></td>
+<td><span class="badge bd">DONE</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-234">NDS-234</a></td>
+<td>Training Dataset</td>
+<td>7 parquet sources: transactions (60 files), menu (60), weather (60), upsell analysis (60), location (1), frequent customers (1), location stats (4). <span class="cr">MultiSourceDataLoader</span> &rarr; <span class="cr">EnhancedDataMerger</span> &rarr; leave-one-out &rarr; 266K rows.</td>
+<td>None major. All 7 sources present and merged. Could add more transaction history (currently ~60 weeks).</td>
+<td><span class="cr">xgboost/data_prep.py</span><br><span class="cr">xgboost/multi_source_data_loader.py</span><br><span class="cr">xgboost/cpu_data_conversion.py</span></td>
+<td><span class="badge bd">DONE</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-237">NDS-237</a></td>
+<td>Item Weather Tags</td>
+<td>No implementation. Weather features are order-level only (temperature, humidity, comfort_score). No per-item <span class="cr">weather_tags</span> or <span class="cr">temperature_affinity</span>.</td>
+<td><strong>Full feature missing.</strong> Spec: per-item tags like <span class="cr">['hot_weather', 'warm_weather']</span>. Used in training as features AND at inference to filter weather-inappropriate items. Would make weather (currently 0.5% of gain) actually useful.</td>
+<td>No file exists</td>
+<td><span class="badge bt">NOT STARTED</span></td></tr>
+
+<tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-273">NDS-273</a></td>
+<td>Add Condiment Category</td>
+<td>8 categories: Main, Side, Drink, Dessert, Meal, Condiment, Other, Undefined. <span class="cr">Condiment: 1</span> limit in configs. Keyword filter in prediction path. March model: only 1 Undefined item (down from 48%).</td>
+<td>None &mdash; classification fixed in March model. Condiment filtering works in API test. 7 items classified as Condiment (BBQ Sauce, Honey Mustard, etc.).</td>
+<td><span class="cr">xgboost/cpu_training.py</span> (complement scores)<br><span class="cr">xgboost/cpu_predict.py</span> (condiment filter)<br><span class="cr">clients/gms_client.py</span> (ItemClassType)</td>
+<td><span class="badge bd">DONE</span></td></tr>
+
+</tbody>
+</table>
+</div>
+
+<!-- ============================================================ -->
+<!-- 30 SCENARIO RESULTS -->
+<!-- ============================================================ -->
+<div class="sec" id="s30">
+  <div class="sh" onclick="document.getElementById('s30').classList.toggle('cl')">
+    <h2>30-Scenario API Test (func host start, develop, stage config)</h2>
+    <div class="ch">&#9660;</div>
+  </div>
+  <div class="sb">
+    <p class="note" style="margin:12px">Model: March binary <span class="cr">202610_1772430807546</span> (75 items, 1% Undefined, AUC 0.999). API: <span class="cr">POST /api/recommendations/{org}</span> via localhost:7072. 29/30 return 5 recs. Scores: 0.887-0.999.</p>
+    <table>
+      <thead><tr><th>#</th><th>Scenario</th><th>Cart</th><th>Rec 1</th><th>Rec 2</th><th>Rec 3</th><th>Recs</th><th>Spread</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Empty cart</td><td>(none)</td><td colspan="3"><em>400: order required</em></td><td>0</td><td>-</td></tr>
+        <tr><td>2</td><td>Single Main</td><td>1 Breast</td><td>Biscuit Combo</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>5</td><td>.004</td></tr>
+        <tr><td>3</td><td>Single Side</td><td>Mac &amp; Cheese</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>Bo Berry Biscuit</td><td>5</td><td>.002</td></tr>
+        <tr><td>4</td><td>Single Drink</td><td>Water</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>Bo Berry Biscuit</td><td>5</td><td>.002</td></tr>
+        <tr><td>5</td><td>Single Dessert</td><td>Bo Berry</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>Bo Berry Biscuit</td><td>5</td><td>.002</td></tr>
+        <tr><td>6</td><td>Meal Combo</td><td>Family Meal</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>Bo Berry Biscuit</td><td>5</td><td>.002</td></tr>
+        <tr><td>7</td><td>Main+Side</td><td>Breast+Mac</td><td>Biscuit Combo</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>5</td><td>.003</td></tr>
+        <tr><td>8</td><td>Main+Drink</td><td>Breast+Water</td><td>Biscuit Combo</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>5</td><td>.003</td></tr>
+        <tr><td>9</td><td>M+S+D</td><td>Breast+Mac+Water</td><td>Biscuit Combo</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>5</td><td>.003</td></tr>
+        <tr><td>10</td><td>Two Mains</td><td>Breast+Leg</td><td>Biscuit Combo</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>5</td><td>.003</td></tr>
+        <tr><td>11</td><td>Two Sides</td><td>Mac+Fries</td><td>Chicken Sandwich</td><td>Bo Berry</td><td>Biscuit Combo</td><td>5</td><td>.001</td></tr>
+        <tr><td>12</td><td>Two Drinks</td><td>Water+Pepsi</td><td>Chicken Sandwich</td><td>Bo Berry</td><td>Biscuit Combo</td><td>5</td><td>.001</td></tr>
+        <tr><td>13</td><td>Full meal</td><td>Breast+Mac+Water</td><td>Biscuit Combo</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>5</td><td>.003</td></tr>
+        <tr><td>14</td><td>Full+Dessert</td><td>Breast+Mac+Water+Berry</td><td>Biscuit Combo</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>5</td><td>.003</td></tr>
+        <tr><td>15</td><td>Meal+Drink</td><td>Family+Water</td><td>Chicken Sandwich</td><td>Bo Berry</td><td>Biscuit Combo</td><td>5</td><td>.001</td></tr>
+        <tr><td>16</td><td>Breakfast</td><td>Sausage Biscuit</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>Bo Berry Biscuit</td><td>5</td><td>.002</td></tr>
+        <tr><td>17</td><td>2 Breakfast</td><td>Sausage+Chicken Biscuit</td><td>Chicken Sandwich</td><td>Bo Berry</td><td>Biscuit Combo</td><td>5</td><td>.001</td></tr>
+        <tr><td>18</td><td>Chicken</td><td>Chicken Biscuit</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>Bo Berry Biscuit</td><td>5</td><td>.002</td></tr>
+        <tr style="background:#f0fdf4"><td>19</td><td>Two Chicken</td><td>Biscuit+Sandwich</td><td><strong>Peach Cobbler</strong></td><td>Sandwich Combo</td><td>Bo Berry</td><td>5</td><td>.000</td></tr>
+        <tr><td>20</td><td>Cheap Side</td><td>Mac &amp; Cheese</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>Bo Berry Biscuit</td><td>5</td><td>.002</td></tr>
+        <tr style="background:#f0fdf4"><td>21</td><td>Premium</td><td>Tenders Combo</td><td><strong>Peach Cobbler</strong></td><td><strong>Bo Berry</strong></td><td><strong>Bo-Berry Cookie</strong></td><td>5</td><td>.002</td></tr>
+        <tr><td>22</td><td>Just Coffee</td><td>Coffee</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>Bo Berry Biscuit</td><td>5</td><td>.002</td></tr>
+        <tr style="background:#f0fdf4"><td>23</td><td>Dessert only</td><td>Peach Cobbler</td><td><strong>Biscuit Combo</strong></td><td><strong>Sandwich Combo</strong></td><td>Chicken Sandwich</td><td>5</td><td>.007</td></tr>
+        <tr><td>24</td><td>Main+Condiment</td><td>Breast+BBQ</td><td>Chicken Sandwich</td><td>Biscuit Combo</td><td>Peach Cobbler</td><td>5</td><td>.002</td></tr>
+        <tr style="background:#f0fdf4"><td>25</td><td>Only Condiments</td><td>BBQ Sauce</td><td><strong>Bo Fries</strong></td><td>Peach Cobbler</td><td>Bo Berry</td><td>5</td><td><strong>.109</strong></td></tr>
+        <tr><td>26</td><td>Family meal</td><td>Family Meal</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>Bo Berry Biscuit</td><td>5</td><td>.002</td></tr>
+        <tr><td>27</td><td>4 items</td><td>Breast+Mac+Water+Berry</td><td>Biscuit Combo</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>5</td><td>.003</td></tr>
+        <tr><td>28</td><td>Salad</td><td>Tenders Salad</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>Sandwich Combo</td><td>5</td><td>.008</td></tr>
+        <tr><td>29</td><td>Same x2</td><td>Breast+Breast</td><td>Biscuit Combo</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>5</td><td>.003</td></tr>
+        <tr><td>30</td><td>Everything</td><td>5 items</td><td>Biscuit Combo</td><td>Chicken Sandwich</td><td>Peach Cobbler</td><td>5</td><td>.003</td></tr>
+        <tr class="sum-row"><td colspan="6">29/30 return 5 recs. Green = cart-sensitive scenarios. Avg spread: 0.005. 4 unique top-1.</td><td>5.0</td><td>.005</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="text-align:center;padding:20px;font-size:10px;color:var(--m)">
+  SUS V2 Gap Analysis &mdash; 2026-03-03 &mdash; develop branch &mdash; Bojangles Waxhaw/Piscataway
+</div>
+
+</div>
+</body>
+</html>
