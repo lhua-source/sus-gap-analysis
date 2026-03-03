@@ -59,15 +59,15 @@ tr:hover{background:#f8fafc}
   <div class="hd-m">
     <span>Baseline: <strong>develop</strong></span>
     <span>Fix branch: <strong>lawrence-cursor-branch</strong></span>
-    <span>Date: <strong>2026-03-02</strong></span>
+    <span>Date: <strong>2026-03-02</strong> (develop updated, nds-208 merged)</span>
     <span>Target: <strong>Bojangles Waxhaw</strong></span>
   </div>
 </div>
 
 <!-- KPIs -->
 <div class="sg">
-  <div class="sc vg"><div class="l">Develop: V1 Pipeline</div><div class="v">90%</div><div class="d">Multiclass training + inference</div></div>
-  <div class="sc vy"><div class="l">Develop: V2 Guest</div><div class="v">35%</div><div class="d">No binary path, no NDS-213/216</div></div>
+  <div class="sc vg"><div class="l">Develop: V1+V2 Code</div><div class="v">85%</div><div class="d">Binary pipeline merged from nds-208</div></div>
+  <div class="sc vy"><div class="l">Deployed Model</div><div class="v">Feb 28</div><div class="d">Multiclass, 48% Undefined, 0/7 pass</div></div>
   <div class="sc vr"><div class="l">Develop: V3 Known Guest</div><div class="v">5%</div><div class="d">No customer profiles, no modifiers</div></div>
   <div class="sc vg"><div class="l">After Fix: Scenarios Pass</div><div class="v">29/30</div><div class="d">lawrence-cursor-branch</div></div>
   <div class="sc vy"><div class="l">After Fix: Unique Top-1</div><div class="v">5</div><div class="d">Target: 15+</div></div>
@@ -79,18 +79,18 @@ tr:hover{background:#f8fafc}
 <!-- ============================================================ -->
 <div class="bx" style="border:2px solid var(--bd)">
   <h3>Section 1: As-Is Architecture (develop branch)</h3>
-  <p class="note">The <strong>develop</strong> branch is the production baseline. It has a multiclass XGBoost model (<span class="cr">multi:softprob</span>, 133 classes) trained via <span class="cr">training.py</span>. It does NOT have the binary pipeline, candidate filtering, ranking/diversity, or complement scoring from nds-208.</p>
+  <p class="note"><strong>UPDATE (March 2):</strong> nds-208 has been merged to develop. Develop now has the binary pipeline (<span class="cr">training_pipeline.py</span>, <span class="cr">predict_binary()</span>, complement scoring, candidate filtering). The code was refactored -- different from both nds-208 and lawrence-cursor-branch. The deployed model in blob is still the Feb 28 multiclass (22.5MB, 48% Undefined), but a March binary model (1.2MB, 1% Undefined, 75 items) was trained via our func host test.</p>
 
   <table style="margin-top:12px">
     <thead><tr><th>Component</th><th>Develop Status</th><th>What's Missing vs V2 Spec</th></tr></thead>
     <tbody>
-      <tr><td>Training Pipeline</td><td><span class="badge bd">Multiclass</span></td><td>Only <span class="cr">training.py</span> with <span class="cr">multi:softprob</span>. No binary, no leave-one-out, no neg sampling, no <span class="cr">training_pipeline.py</span></td></tr>
-      <tr><td>Inference: predict()</td><td><span class="badge bd">Works</span></td><td>Multiclass only. No <span class="cr">_predict_binary()</span>, no per-candidate scoring</td></tr>
-      <tr><td>NDS-213: Candidate Filter</td><td><span class="badge bt">Missing</span></td><td><span class="cr">CandidateFilter</span> exists only on nds-208</td></tr>
-      <tr><td>NDS-216: Ranking/Diversity</td><td><span class="badge bt">Missing</span></td><td><span class="cr">RankingDiversitySelector</span>, Gap-Aware MMR, gap bonuses only on nds-208</td></tr>
-      <tr><td>Complement Scoring</td><td><span class="badge bt">Missing</span></td><td>Hardcoded scores in <span class="cr">cpu_training.py</span> on nds-208 only</td></tr>
-      <tr><td>item_feature_index</td><td><span class="badge bt">Missing</span></td><td>Deployed model has 0 items. Binary path has no candidate data</td></tr>
-      <tr><td>model_type artifact key</td><td><span class="badge bt">Missing</span></td><td>Deployed model defaults to "multiclass". Binary path never invoked</td></tr>
+      <tr><td>Training Pipeline</td><td><span class="badge bd">Binary</span></td><td>nds-208 merged. <span class="cr">training_pipeline.py</span> with leave-one-out, neg sampling, binary:logistic. Code refactored from nds-208.</td></tr>
+      <tr><td>Inference: predict_binary()</td><td><span class="badge bd">Present</span></td><td><span class="cr">predict_binary()</span> on develop now. Extracts weather, temporal, cart features separately. Bug: <span class="cr">_filter_candidates</span> calls <span class="cr">available_items.items()</span> but GMS returns list on 404.</td></tr>
+      <tr><td>NDS-213: Candidate Filter</td><td><span class="badge bd">Present</span></td><td><span class="cr">_filter_candidates()</span> in <span class="cr">cpu_predict.py</span> with category limits, cart exclusion, condiment filter.</td></tr>
+      <tr><td>NDS-216: Ranking/Diversity</td><td><span class="badge bp">Partial</span></td><td>Complement scoring present. Gap-Aware MMR present in nds-208 version but develop's refactored code may differ.</td></tr>
+      <tr><td>Complement Scoring</td><td><span class="badge bd">Present</span></td><td>64 pairs in <span class="cr">cpu_training.py</span>. Still hardcoded, not data-driven.</td></tr>
+      <tr><td>item_feature_index</td><td><span class="badge bp">Model-dependent</span></td><td>March model has 75 items. Feb 28 deployed model has 0. Depends which model the org record points to.</td></tr>
+      <tr><td>model_type artifact key</td><td><span class="badge bp">Model-dependent</span></td><td>March model has "binary". Feb 28 has NOT SET. Inference path depends on which model is loaded.</td></tr>
       <tr><td>Location Statistics</td><td><span class="badge bd">Works</span></td><td>Job 2 present on both branches</td></tr>
       <tr><td>Weather Cache</td><td><span class="badge bd">Works</span></td><td>Job 6 present. But weather = 0.5% of model gain</td></tr>
       <tr><td>Item Attributes</td><td><span class="badge bd">Works</span></td><td>Job 4 partially present</td></tr>
@@ -99,20 +99,43 @@ tr:hover{background:#f8fafc}
     </tbody>
   </table>
 
-  <h3 style="margin-top:16px">Develop Branch Test Results (7 Scenarios, Multiclass Model)</h3>
+  <h3 style="margin-top:16px">Model Comparison: Feb 28 (Deployed) vs March (Binary)</h3>
   <table style="margin-top:8px">
-    <thead><tr><th>Scenario</th><th>Cart</th><th>Top 5 Recommendations (all identical)</th><th>Pass?</th></tr></thead>
+    <thead><tr><th>Property</th><th>Feb 28 (Deployed)</th><th>March (Binary, from training test)</th></tr></thead>
     <tbody>
-      <tr><td>Empty cart</td><td>(empty)</td><td>Starry [Drink], Bo's Chicken Biscuit [Main], BBQ Sauce [Undef], Cole Slaw [Undef], Choc Milkshake [Dessert]</td><td style="color:var(--r)">FAIL</td></tr>
-      <tr><td>Single Main</td><td>Chicken Sandwich</td><td style="color:var(--r)">IDENTICAL to empty cart (delta: 0.00001)</td><td style="color:var(--r)">FAIL</td></tr>
-      <tr><td>Single Drink</td><td>Water</td><td style="color:var(--r)">IDENTICAL to empty cart</td><td style="color:var(--r)">FAIL</td></tr>
-      <tr><td>Main + Side</td><td>Sandwich + Cole Slaw</td><td>Starry, Bo's Biscuit, Cole Slaw [Undef], Choc Milkshake, Grilled Salad [Main]</td><td style="color:var(--r)">FAIL</td></tr>
-      <tr><td>Main+Side+Drink</td><td>Sandwich+Slaw+Water</td><td style="color:var(--r)">IDENTICAL to Main+Side</td><td style="color:var(--r)">FAIL</td></tr>
-      <tr><td>Two Mains</td><td>Sandwich + Salad</td><td style="color:var(--r)">IDENTICAL to Main+Side</td><td style="color:var(--r)">FAIL</td></tr>
-      <tr><td>Meal Combo</td><td>Sausage Biscuit</td><td style="color:var(--r)">IDENTICAL to empty cart</td><td style="color:var(--r)">FAIL</td></tr>
-      <tr class="sum-row"><td colspan="3" style="text-align:right">Result: 0/7 pass. Model is a popularity predictor. Cart has no effect on output.</td><td style="color:var(--r)">0/7</td></tr>
+      <tr><td>model_type</td><td style="color:var(--r)">NOT SET (defaults multiclass)</td><td style="color:var(--g)">binary</td></tr>
+      <tr><td>item_feature_index</td><td style="color:var(--r)">0 items</td><td style="color:var(--g)">75 items</td></tr>
+      <tr><td>Total items</td><td>137</td><td>75</td></tr>
+      <tr><td>Undefined items</td><td style="color:var(--r)">66 (48%)</td><td style="color:var(--g)">1 (1%)</td></tr>
+      <tr><td>AUC-ROC</td><td>0.95</td><td style="color:var(--g)">0.999</td></tr>
+      <tr><td>Size</td><td>22.5MB</td><td>1.2MB</td></tr>
+      <tr><td>Training rows</td><td>18,380</td><td>43,278</td></tr>
+      <tr><td>Features</td><td>335</td><td>360</td></tr>
     </tbody>
   </table>
+
+  <h3 style="margin-top:16px">Test: Feb 28 Deployed Model (Multiclass, 7 Scenarios)</h3>
+  <table style="margin-top:8px">
+    <thead><tr><th>Scenario</th><th>Cart</th><th>Top Recommendations</th><th>Pass?</th></tr></thead>
+    <tbody>
+      <tr><td>Empty cart</td><td>(empty)</td><td>Chicken Biscuit [Main], BBQ Sauce [Undef], Ranch [Undef], Cole Slaw [Undef], Sausage Combo [Undef]</td><td style="color:var(--r)">FAIL</td></tr>
+      <tr><td>Any other cart</td><td>Any</td><td style="color:var(--r)">IDENTICAL to empty cart (delta: 0.00001)</td><td style="color:var(--r)">FAIL</td></tr>
+      <tr class="sum-row"><td colspan="3" style="text-align:right">0/7 pass. Popularity predictor. 48% Undefined breaks all category logic.</td><td style="color:var(--r)">0/7</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:16px">Test: March Binary Model (Raw Scores, 9 Scenarios)</h3>
+  <table style="margin-top:8px">
+    <thead><tr><th>Scenario</th><th>Cart</th><th>Top 3 Recommendations</th><th>Cart-aware?</th></tr></thead>
+    <tbody>
+      <tr><td>Empty</td><td>(none)</td><td>Chicken Sandwich [Main], Bo Fries [Side], Peach Cobbler [Dessert]</td><td>N/A</td></tr>
+      <tr><td>Main</td><td>Main item</td><td>Same as empty</td><td style="color:var(--r)">No</td></tr>
+      <tr><td>Main+Side+Drink</td><td>3 items</td><td>Same as empty</td><td style="color:var(--r)">No</td></tr>
+      <tr style="background:#f0fdf4"><td>Two Mains</td><td>Breast + Leg</td><td><strong>Bo Fries [Side], Peach Cobbler [Dessert], Biscuit Combo [Meal]</strong></td><td style="color:var(--g)">Yes</td></tr>
+      <tr class="sum-row"><td colspan="3" style="text-align:right">Classification fixed (1% Undefined). 3 categories per rec. Cart sensitivity: 1/9 scenarios.</td><td style="color:var(--y)">1/9</td></tr>
+    </tbody>
+  </table>
+  <p class="note"><strong>Key finding:</strong> The March binary model fixes the classification problem (48% &rarr; 1% Undefined) and has 3-category diversity by default. But raw scores still don't differentiate by cart -- the full <span class="cr">predict_binary()</span> pipeline with weather, temporal, and complement scoring is needed for cart sensitivity. The develop code now has this pipeline (merged from nds-208), but the deployed model must be retrained and the org Cosmos pointer updated.</p>
 </div>
 
 <!-- ============================================================ -->
