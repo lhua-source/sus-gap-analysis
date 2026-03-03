@@ -161,11 +161,26 @@ tr:hover{background:#f8fafc}
     <tbody>
       <tr><td><strong>Direct Python</strong></td><td>Load binary model artifact, inject into <span class="cr">XGBoostRecsysPredictor</span>, call <span class="cr">_predict_binary()</span> with real payloads</td><td style="color:var(--g);font-weight:700">29/30 pass</td><td>The model + inference code works. Cart-aware recs confirmed.</td></tr>
       <tr><td><strong>func host train</strong></td><td><span class="cr">func host start</span> with Python 3.11 venv, <span class="cr">POST /api/training/start/{loc}</span></td><td style="color:var(--g)">Model trained OK</td><td>Full training pipeline runs end-to-end via API. Binary model uploaded to blob.</td></tr>
-      <tr><td><strong>func host infer</strong></td><td><span class="cr">POST /api/recommendations/{loc}</span> x30 scenarios</td><td style="color:var(--r)">0/29 recs returned</td><td>4 bugs found: 2 dtype, 1 type mismatch, 1 org pointer. First 2 were known; last 2 found during this test.</td></tr>
+      <tr><td><strong>func host infer (develop, stage config)</strong></td><td><span class="cr">POST /api/recommendations/{org}</span> x30 scenarios, March binary model</td><td style="color:var(--g);font-weight:700">29/30 return 5 recs</td><td>Full production pipeline: Cosmos org lookup, blob model load, weather, predict_binary, candidate filtering. Real results below.</td></tr>
     </tbody>
   </table>
 
-  <p class="note" style="margin-top:10px"><strong>Why the func host API returned 0 recs:</strong> GMS returned 404 for available items (stage function not running), and Cosmos org pointer still references the old multiclass model. Even after fixing bugs 3+4, the API can't serve binary recommendations until the org record is updated in Cosmos to reference the new model. This is an infrastructure/deployment issue, not a code issue -- all 4 code bugs are now fixed on <span class="cr">lawrence-cursor-branch</span>.</p>
+  <h3 style="margin-top:16px">Func Host API Results (develop, stage config, March binary model)</h3>
+  <p class="note">Ran <span class="cr">func host start</span> on develop with stage config (cosmos-nge-stage). API loaded March binary model (<span class="cr">202610_1772430807546</span>). 29/30 scenarios return 5 recs each.</p>
+  <table style="margin-top:8px">
+    <thead><tr><th>Metric</th><th>Result</th><th>Target</th><th>Assessment</th></tr></thead>
+    <tbody>
+      <tr><td>Scenarios OK</td><td style="color:var(--g);font-weight:700">29/30</td><td>30</td><td style="color:var(--g)">PASS</td></tr>
+      <tr><td>Recs per scenario</td><td style="color:var(--g)">5.0</td><td>3-5</td><td style="color:var(--g)">PASS</td></tr>
+      <tr><td>Unique top-1 items</td><td style="color:var(--y)">4</td><td>15+</td><td style="color:var(--y)">LOW</td></tr>
+      <tr><td>Identical top-5 pairs</td><td style="color:var(--y)">36%</td><td>&lt;5%</td><td style="color:var(--y)">HIGH</td></tr>
+      <tr><td>Avg score spread</td><td style="color:var(--r)">0.003</td><td>0.2+</td><td style="color:var(--r)">COMPRESSED</td></tr>
+      <tr><td>Confidence range</td><td>0.887-0.999</td><td>0.3-0.9</td><td style="color:var(--r)">OVERCONFIDENT</td></tr>
+      <tr><td>Cart exclusion</td><td style="color:var(--g)">Works</td><td>Works</td><td style="color:var(--g)">PASS</td></tr>
+      <tr><td>Category diversity</td><td style="color:var(--y)">2 cats avg</td><td>3+</td><td style="color:var(--y)">LOW</td></tr>
+    </tbody>
+  </table>
+  <p class="note" style="margin-top:8px"><strong>Bottom line:</strong> The pipeline works end-to-end. The API returns real recommendations. Cart items are excluded. But score compression (0.993-0.999) means the model can't meaningfully rank candidates. This is a model quality issue, not a code issue. The model needs: higher negative sampling (NEG_PER_TXN &gt; 3), calibration, and possibly a score normalization layer to spread confidence scores into a useful range.</p>
 
   <h3 style="margin-top:18px">Before / After Comparison</h3>
   <table style="margin-top:8px">
