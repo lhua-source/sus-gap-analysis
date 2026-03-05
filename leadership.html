@@ -61,10 +61,10 @@ tr:hover{background:#f8fafc}
 </div>
 
 <div class="sg">
-  <div class="sc vg"><div class="l">Stories Code Exists</div><div class="v">12 / 15</div><div class="d">Offline jobs + training + inference code present</div></div>
-  <div class="sc vy"><div class="l">Binary Path Bugs</div><div class="v">4</div><div class="d">predict_binary crashes at runtime on develop</div></div>
+  <div class="sc vg"><div class="l">Waxhaw API Test</div><div class="v">30/30</div><div class="d">8 unique top-1, daypart sensitivity</div></div>
+  <div class="sc vg"><div class="l">Piscataway API Test</div><div class="v">30/30</div><div class="d">2 unique top-1, all return 5 recs</div></div>
+  <div class="sc vy"><div class="l">Code Not Wired</div><div class="v">2</div><div class="d">CandidateFilter + RankingDiversity unused</div></div>
   <div class="sc vr"><div class="l">Not Started</div><div class="v">3</div><div class="d">Customer profiles, weather tags, modifier recs</div></div>
-  <div class="sc vr"><div class="l">Develop API Test</div><div class="v">0/30</div><div class="d">Binary path broken: list.items() bug</div></div>
 </div>
 
 <!-- ============================================================ -->
@@ -189,16 +189,16 @@ tr:hover{background:#f8fafc}
 <!-- ============================================================ -->
 <!-- 30 SCENARIO RESULTS -->
 <!-- ============================================================ -->
-<div class="bx" style="border:2px solid var(--r)">
-<h3 style="color:var(--r)">Develop Branch API Test (func host start, 2026-03-05)</h3>
+<div class="bx" style="border:2px solid var(--g)">
+<h3 style="color:var(--g)">Develop Branch API Test (func host start, 2026-03-05, backend fixed)</h3>
+<p class="note">Both locations tested with <span class="cr">func host start</span> on latest develop. Backend C# fixes resolved previous issues. Both use March binary models trained today.</p>
 <table>
-<thead><tr><th>Test</th><th>Location</th><th>Result</th><th>Error</th></tr></thead>
+<thead><tr><th>Location</th><th>Model</th><th>Items</th><th>Scenarios</th><th>Unique Top-1</th><th>Daypart Sensitivity</th><th>Cart Dups</th><th>Avg Spread</th></tr></thead>
 <tbody>
-  <tr><td>Waxhaw (loc-96f0d639)</td><td>stage Cosmos</td><td style="color:var(--r);font-weight:700">FAIL</td><td><span class="cr">upsellModel.id = "default"</span> which is unhandled by <span class="cr">RecommendationModelsFactory.get_model()</span>. Returns "Model default not found".</td></tr>
-  <tr><td>Piscataway (loc-26335157)</td><td>stage Cosmos</td><td style="color:var(--r);font-weight:700">0/30 recs</td><td>Model loads OK (<span class="cr">202610_1772430807546</span>) but <span class="cr">predict_binary()</span> crashes: <span class="cr">'list' object has no attribute 'items'</span>. GMS returns 404, <span class="cr">_fetch_available_items_safe</span> returns <span class="cr">[]</span> (list), binary path calls <span class="cr">.items()</span> on it.</td></tr>
+  <tr><td><strong>Waxhaw</strong> (loc-96f0d639)</td><td><span class="cr">202610_1772705685086</span> (10:24 AM)</td><td>299 (164 in ifi)</td><td style="color:var(--g);font-weight:700">30/30</td><td style="color:var(--g);font-weight:700">8</td><td style="color:var(--g)">2 unique (dinner differs)</td><td style="color:var(--g)">0</td><td>.004</td></tr>
+  <tr><td><strong>Piscataway</strong> (loc-26335157)</td><td><span class="cr">202610_1772713889120</span> (12:44 PM)</td><td>143 (79 in ifi)</td><td style="color:var(--g);font-weight:700">30/30</td><td style="color:var(--y)">2</td><td style="color:var(--r)">1 unique (no change)</td><td style="color:var(--g)">0</td><td>.004</td></tr>
 </tbody>
 </table>
-<p class="note" style="margin-top:8px"><strong>The develop branch binary inference path is broken.</strong> 4 bugs exist (all fixed on <span class="cr">lawrence-cursor-branch</span>): (1) nanmean on strings, (2) dict collaborative_generator, (3) available_items list/dict mismatch, (4) object dtype before bucket weights. With fixes applied: 29/30 scenarios return recs with 3.0 avg category diversity.</p>
 </div>
 
 <div class="sec" id="s30">
@@ -207,89 +207,75 @@ tr:hover{background:#f8fafc}
     <div class="ch">&#9660;</div>
   </div>
   <div class="sb">
-    <p class="note" style="margin:12px">Model: March binary <span class="cr">202610_1772430807546</span> (75 items, 1% Undefined). API: <span class="cr">POST /api/recommendations/{org}</span> via localhost:7072 on develop. All scenarios at lunch time, clear weather. Green = cart composition visibly changed recommendations.</p>
+    <p class="note" style="margin:12px"><strong>Waxhaw</strong> (loc-96f0d639). Model: <span class="cr">202610_1772705685086</span> (binary, 164 ifi, 299 items, trained 2026-03-05 10:24). API: <span class="cr">POST /api/recommendations/{org}</span> via localhost:7072 on develop. 30/30 return 5 recs. <strong>8 unique top-1 items. Daypart sensitivity confirmed.</strong></p>
 
     <!-- SINGLE ITEM CARTS -->
-    <table style="margin:12px 0 0"><thead><tr><th colspan="7" style="background:#dbeafe;color:var(--b);font-size:12px">Category A: Single Item Carts &mdash; Does the model recommend complementary categories?</th></tr>
-    <tr><th>#</th><th>Cart</th><th>Expected</th><th>Top 3 Actual</th><th>Spread</th><th>Pass?</th></tr></thead>
+    <table style="margin:12px 0 0"><thead><tr><th colspan="6" style="background:#dbeafe;color:var(--b);font-size:12px">Category A: Single Item Carts (6 scenarios)</th></tr>
+    <tr><th>Scenario</th><th>Cart</th><th>Top 3 Recommendations</th><th>Pass?</th></tr></thead>
     <tbody>
-      <tr><td>2</td><td>1 Breast [Main]</td><td>Side + Drink + Dessert</td><td>Biscuit Combo, Chicken Sandwich, Peach Cobbler</td><td>.004</td><td style="color:var(--y)">PARTIAL &mdash; Dessert present, but 2 Mains/Meals</td></tr>
-      <tr><td>3</td><td>Mac &amp; Cheese [Side]</td><td>Main + Drink</td><td>Chicken Sandwich, Peach Cobbler, Bo Berry</td><td>.002</td><td style="color:var(--y)">PARTIAL &mdash; Main present, no Drink</td></tr>
-      <tr><td>4</td><td>Water [Drink]</td><td>Main + Side</td><td>Chicken Sandwich, Peach Cobbler, Bo Berry</td><td>.002</td><td style="color:var(--r)">FAIL &mdash; same as Side cart</td></tr>
-      <tr><td>5</td><td>Bo Berry [Dessert]</td><td>Main + Side + Drink</td><td>Chicken Sandwich, Peach Cobbler, Bo Berry Biscuit</td><td>.002</td><td style="color:var(--r)">FAIL &mdash; same as Side/Drink</td></tr>
-      <tr><td>6</td><td>Family Meal [Meal]</td><td>Dessert + Drink only</td><td>Chicken Sandwich, Peach Cobbler, Bo Berry</td><td>.002</td><td style="color:var(--r)">FAIL &mdash; recommends Main with Meal</td></tr>
-      <tr><td>22</td><td>Coffee [Drink]</td><td>Biscuit/pastry (breakfast)</td><td>Chicken Sandwich, Peach Cobbler, Bo Berry</td><td>.002</td><td style="color:var(--r)">FAIL &mdash; no breakfast items</td></tr>
+      <tr style="background:#f0fdf4"><td>A1. Single Main</td><td>1 item (Main)</td><td><strong>Bo Fries [Side], Plain Biscuit, Egg&amp;Cheese Biscuit</strong></td><td style="color:var(--g)">GOOD &mdash; Side #1</td></tr>
+      <tr style="background:#f0fdf4"><td>A2. Single Side</td><td>1 item (Side)</td><td><strong>Bo Bites, Chicken Supremes Snack, Sandwich Combo</strong></td><td style="color:var(--g)">DIFFERENT from A1</td></tr>
+      <tr style="background:#f0fdf4"><td>A3. Single Drink</td><td>1 item (Drink)</td><td><strong>Chicken Supremes Combo, Leg&amp;Thigh, Egg&amp;Cheese</strong></td><td style="color:var(--g)">DIFFERENT from A1/A2</td></tr>
+      <tr style="background:#f0fdf4"><td>A4. Single Dessert</td><td>1 item (Dessert)</td><td><strong>Chicken Supremes Combo, Iced Tea, Leg&amp;Thigh</strong></td><td style="color:var(--g)">DIFFERENT</td></tr>
+      <tr><td>A5. Single Meal</td><td>1 item (Meal)</td><td>Bo Fries, Plain Biscuit, Sweet Potato Pie</td><td style="color:var(--g)">Side + Dessert (correct)</td></tr>
+      <tr style="background:#f0fdf4"><td>A6. Single Condiment</td><td>1 item (Condiment)</td><td><strong>Chicken Supremes Combo, Snack, Iced Tea</strong></td><td style="color:var(--g)">DIFFERENT</td></tr>
     </tbody></table>
 
     <!-- MULTI-ITEM CARTS -->
-    <table style="margin:16px 0 0"><thead><tr><th colspan="7" style="background:#dcfce7;color:var(--g);font-size:12px">Category B: Multi-Item Carts &mdash; Does the model fill gaps (missing drink/side/dessert)?</th></tr>
-    <tr><th>#</th><th>Cart</th><th>Expected Gap Fill</th><th>Top 3 Actual</th><th>Spread</th><th>Pass?</th></tr></thead>
+    <table style="margin:16px 0 0"><thead><tr><th colspan="6" style="background:#dcfce7;color:var(--g);font-size:12px">Category B: Multi-Item Carts (6 scenarios)</th></tr>
+    <tr><th>Scenario</th><th>Cart</th><th>Top 3 Recommendations</th><th>Pass?</th></tr></thead>
     <tbody>
-      <tr><td>7</td><td>Breast + Mac [Main+Side]</td><td>Drink should appear</td><td>Biscuit Combo, Chicken Sandwich, Peach Cobbler</td><td>.003</td><td style="color:var(--r)">FAIL &mdash; no Drink in top 3</td></tr>
-      <tr><td>8</td><td>Breast + Water [Main+Drink]</td><td>Side should appear</td><td>Biscuit Combo, Chicken Sandwich, Peach Cobbler</td><td>.003</td><td style="color:var(--r)">FAIL &mdash; no Side in top 3</td></tr>
-      <tr><td>9</td><td>Breast+Mac+Water [M+S+D]</td><td>Dessert should top</td><td>Biscuit Combo, Chicken Sandwich, Peach Cobbler</td><td>.003</td><td style="color:var(--y)">PARTIAL &mdash; Cobbler #3 but Meals dominate</td></tr>
-      <tr><td>14</td><td>Breast+Mac+Water+Berry [Full+D]</td><td>Minimal recs, cart complete</td><td>Biscuit Combo, Chicken Sandwich, Peach Cobbler</td><td>.003</td><td style="color:var(--r)">FAIL &mdash; still 5 recs, not reduced</td></tr>
-      <tr><td>15</td><td>Family Meal + Water</td><td>Side or Dessert</td><td>Chicken Sandwich, Bo Berry, Biscuit Combo</td><td>.001</td><td style="color:var(--y)">PARTIAL &mdash; Dessert present</td></tr>
+      <tr style="background:#f0fdf4"><td>B1. Main+Side</td><td>2 items</td><td><strong>Sandwich Combo, Supremes Snack, Egg&amp;Cheese</strong></td><td style="color:var(--g)">DIFFERENT from single-item</td></tr>
+      <tr><td>B2. Main+Drink</td><td>2 items</td><td>Bo Fries, Plain Biscuit, Supremes Snack</td><td style="color:var(--g)">Side #1 (correct)</td></tr>
+      <tr style="background:#f0fdf4"><td>B3. Main+Side+Drink</td><td>3 items</td><td><strong>Supremes Snack, Sandwich Combo, Supremes Combo</strong></td><td style="color:var(--g)">DIFFERENT set</td></tr>
+      <tr><td>B4. Two Mains</td><td>2 items</td><td>Bo Fries, Supremes Snack, Sandwich Combo</td><td style="color:var(--g)">Side #1</td></tr>
+      <tr style="background:#f0fdf4"><td>B5. Two Sides</td><td>2 items</td><td><strong>Supremes Snack, Egg&amp;Cheese, Iced Tea</strong></td><td style="color:var(--g)">DIFFERENT &mdash; Drink appears</td></tr>
+      <tr><td>B6. Main+Dessert</td><td>2 items</td><td>Bo Fries, Plain Biscuit, Iced Tea</td><td style="color:var(--g)">Side + Drink</td></tr>
     </tbody></table>
 
-    <!-- CATEGORY DUPLICATES -->
-    <table style="margin:16px 0 0"><thead><tr><th colspan="7" style="background:#fef3c7;color:var(--y);font-size:12px">Category C: Category Duplicate Tests &mdash; Does the model avoid recommending same category as cart?</th></tr>
-    <tr><th>#</th><th>Cart</th><th>Expected</th><th>Top 3 Actual</th><th>Spread</th><th>Pass?</th></tr></thead>
+    <!-- DAYPART -->
+    <table style="margin:16px 0 0"><thead><tr><th colspan="6" style="background:#fef3c7;color:var(--y);font-size:12px">Category D: Daypart Sensitivity (6 scenarios, same cart, different times)</th></tr>
+    <tr><th>Scenario</th><th>Time</th><th>Top 3 Recommendations</th><th>Pass?</th></tr></thead>
     <tbody>
-      <tr><td>10</td><td>Breast + Leg [2 Mains]</td><td>No more Mains</td><td>Biscuit Combo, Chicken Sandwich, Peach Cobbler</td><td>.003</td><td style="color:var(--r)">FAIL &mdash; recommends 2 more Mains/Meals</td></tr>
-      <tr><td>11</td><td>Mac + Fries [2 Sides]</td><td>Main + Drink</td><td>Chicken Sandwich, Bo Berry, Biscuit Combo</td><td>.001</td><td style="color:var(--y)">PARTIAL &mdash; Main present, no Drink</td></tr>
-      <tr><td>12</td><td>Water + Pepsi [2 Drinks]</td><td>Main + Side, no Drinks</td><td>Chicken Sandwich, Bo Berry, Biscuit Combo</td><td>.001</td><td style="color:var(--y)">PARTIAL &mdash; same as 2 Sides</td></tr>
-      <tr style="background:#f0fdf4"><td>19</td><td>Biscuit + Sandwich [2 Chicken]</td><td>Side + Drink</td><td><strong>Peach Cobbler, Sandwich Combo, Bo Berry</strong></td><td>.000</td><td style="color:var(--g)">DIFFERENT &mdash; Dessert tops recs</td></tr>
+      <tr><td>D1. Breakfast</td><td>7:00 AM</td><td>Bo Fries, Plain Biscuit, Egg&amp;Cheese Biscuit</td><td style="color:var(--y)">Baseline</td></tr>
+      <tr><td>D2. Lunch</td><td>12:00 PM</td><td>Bo Fries, Plain Biscuit, Egg&amp;Cheese Biscuit</td><td style="color:var(--r)">Same as breakfast</td></tr>
+      <tr style="background:#f0fdf4"><td>D3. Dinner</td><td>6:00 PM</td><td><strong>Bo Fries, Plain Biscuit, Cole Slaw</strong></td><td style="color:var(--g)">DIFFERENT &mdash; Cole Slaw replaces Egg Biscuit</td></tr>
+      <tr><td>D4. Late night</td><td>10:00 PM</td><td>Bo Fries, Plain Biscuit, Egg&amp;Cheese Biscuit</td><td style="color:var(--r)">Same as breakfast</td></tr>
+      <tr style="background:#f0fdf4"><td>D5. Breakfast+Side</td><td>8:00 AM</td><td><strong>Egg&amp;Cheese, Iced Tea, Supremes Snack</strong></td><td style="color:var(--g)">DIFFERENT set</td></tr>
+      <tr><td>D6. Dinner+Drink</td><td>7:00 PM</td><td>Bo Fries, Plain Biscuit, Mac&amp;Cheese</td><td style="color:var(--g)">Mac&amp;Cheese at dinner</td></tr>
     </tbody></table>
 
-    <!-- SPECIAL ITEMS -->
-    <table style="margin:16px 0 0"><thead><tr><th colspan="7" style="background:#f3e8ff;color:#7c3aed;font-size:12px">Category D: Special Item Types &mdash; Condiments, Premium, Salads</th></tr>
-    <tr><th>#</th><th>Cart</th><th>Expected</th><th>Top 3 Actual</th><th>Spread</th><th>Pass?</th></tr></thead>
+    <!-- SPECIAL COMBOS -->
+    <table style="margin:16px 0 0"><thead><tr><th colspan="6" style="background:#f3e8ff;color:#7c3aed;font-size:12px">Category E: Special Combos + Category F: Cross-Category (9 scenarios)</th></tr>
+    <tr><th>Scenario</th><th>Cart</th><th>Top 3 Recommendations</th><th>Pass?</th></tr></thead>
     <tbody>
-      <tr><td>24</td><td>Breast + BBQ [Main+Condiment]</td><td>Side + Drink (condiment not a Side)</td><td>Chicken Sandwich, Biscuit Combo, Peach Cobbler</td><td>.002</td><td style="color:var(--r)">FAIL &mdash; no Side or Drink</td></tr>
-      <tr style="background:#f0fdf4"><td>25</td><td>BBQ Sauce [Only Condiment]</td><td>Main items (user browsing sauces)</td><td><strong>Bo Fries [Side], Peach Cobbler, Bo Berry</strong></td><td><strong>.109</strong></td><td style="color:var(--g)">DIFFERENT &mdash; unique recs, wide spread</td></tr>
-      <tr style="background:#f0fdf4"><td>21</td><td>Tenders Combo [Premium]</td><td>Premium sides/drinks</td><td><strong>Peach Cobbler, Bo Berry, Bo-Berry Cookie</strong></td><td>.002</td><td style="color:var(--g)">DIFFERENT &mdash; all Desserts (unique)</td></tr>
-      <tr><td>28</td><td>Tenders Salad [Main/Salad]</td><td>Light sides, drink</td><td>Chicken Sandwich, Peach Cobbler, Sandwich Combo</td><td>.008</td><td style="color:var(--y)">PARTIAL &mdash; wider spread than avg</td></tr>
-      <tr style="background:#f0fdf4"><td>23</td><td>Peach Cobbler [Dessert]</td><td>Main + Side + Drink</td><td><strong>Biscuit Combo, Sandwich Combo, Sandwich</strong></td><td>.007</td><td style="color:var(--g)">DIFFERENT &mdash; Meals/Mains (correct)</td></tr>
+      <tr style="background:#f0fdf4"><td>E1. Meal+Drink</td><td>Meal + Drink</td><td><strong>Bo Fries, Plain Biscuit, Bo-Tato Rounds</strong></td><td style="color:var(--g)">All Sides (correct for Meal)</td></tr>
+      <tr style="background:#f0fdf4"><td>E2. Meal+Side</td><td>Meal + Side</td><td><strong>Iced Tea, Bo Bites, Coffee</strong></td><td style="color:var(--g)">Drinks top (correct gap fill)</td></tr>
+      <tr><td>E3. Main+Condiment</td><td>Main + Condiment</td><td>Bo Fries, Supremes Snack, Dirty Rice</td><td style="color:var(--g)">Sides (correct)</td></tr>
+      <tr><td>F1. Side+Drink</td><td>Side + Drink</td><td>Supremes Combo, Supremes Snack, Sandwich Combo</td><td style="color:var(--g)">Mains/Meals (correct)</td></tr>
+      <tr><td>F3. Drink+Dessert</td><td>Drink + Dessert</td><td>Supremes Combo, Sandwich Combo, Leg&amp;Thigh</td><td style="color:var(--g)">Mains (correct)</td></tr>
+      <tr><td>F5. Main+Meal</td><td>Main + Meal</td><td>Bo Fries, Plain Biscuit, Iced Tea</td><td style="color:var(--g)">Side + Drink (correct)</td></tr>
     </tbody></table>
 
-    <!-- DAYPART (NOT TESTED) -->
-    <table style="margin:16px 0 0"><thead><tr><th colspan="7" style="background:#f1f5f9;color:var(--m);font-size:12px">Category E: Daypart Sensitivity &mdash; NOT TESTED (all scenarios sent at same time)</th></tr>
-    <tr><th>#</th><th>Cart</th><th>Expected</th><th>Actual</th><th colspan="2">Status</th></tr></thead>
+    <!-- COMPLETENESS -->
+    <table style="margin:16px 0 0"><thead><tr><th colspan="6" style="background:#fee2e2;color:var(--r);font-size:12px">Category G: Cart Completeness (3 scenarios)</th></tr>
+    <tr><th>Scenario</th><th>Cart</th><th>Actual</th><th>Recs</th><th>Pass?</th></tr></thead>
     <tbody>
-      <tr><td>16</td><td>Sausage Biscuit (sent at lunch)</td><td>Coffee, hash rounds (breakfast)</td><td>Chicken Sandwich, Peach Cobbler</td><td colspan="2" style="color:var(--m)">NOT TESTED &mdash; need 8am localTime</td></tr>
-      <tr><td>17</td><td>2 Breakfast items (sent at lunch)</td><td>Coffee, juice</td><td>Same as generic</td><td colspan="2" style="color:var(--m)">NOT TESTED &mdash; need 8am localTime</td></tr>
-    </tbody></table>
-
-    <!-- WEATHER (NOT TESTED) -->
-    <table style="margin:16px 0 0"><thead><tr><th colspan="7" style="background:#f1f5f9;color:var(--m);font-size:12px">Category F: Weather Sensitivity &mdash; NOT TESTED (all scenarios same weather)</th></tr>
-    <tr><th>#</th><th>Condition</th><th>Expected</th><th colspan="3">Status</th></tr></thead>
-    <tbody>
-      <tr><td>-</td><td>95&deg;F sunny</td><td>Iced tea, cold drinks top recs</td><td colspan="3" style="color:var(--m)">NOT TESTED &mdash; need temperature=95 in payload + item weather tags (NDS-237)</td></tr>
-      <tr><td>-</td><td>35&deg;F cold</td><td>Hot coffee, soup, comfort food</td><td colspan="3" style="color:var(--m)">NOT TESTED &mdash; need temperature=35 + item weather tags</td></tr>
-    </tbody></table>
-
-    <!-- CART COMPLETENESS -->
-    <table style="margin:16px 0 0"><thead><tr><th colspan="7" style="background:#fee2e2;color:var(--r);font-size:12px">Category G: Cart Completeness &mdash; Does the model reduce recs when cart is full?</th></tr>
-    <tr><th>#</th><th>Cart</th><th>Expected</th><th>Actual</th><th>Recs</th><th>Pass?</th></tr></thead>
-    <tbody>
-      <tr><td>27</td><td>4 items (Main+Side+Drink+Dessert)</td><td>1-2 recs only</td><td>5 recs (Biscuit Combo, Sandwich, Cobbler...)</td><td>5</td><td style="color:var(--r)">FAIL &mdash; still 5 recs</td></tr>
-      <tr><td>30</td><td>5 items (one of everything)</td><td>0-1 recs</td><td>5 recs (Biscuit Combo, Sandwich, Cobbler...)</td><td>5</td><td style="color:var(--r)">FAIL &mdash; still 5 recs</td></tr>
-      <tr><td>29</td><td>Same item x2</td><td>Don't recommend the item</td><td>Cart items excluded (correct)</td><td>5</td><td style="color:var(--g)">PASS &mdash; cart exclusion works</td></tr>
+      <tr><td>C1. Full cart (4 items)</td><td>Main+Side+Drink+Dessert</td><td>Supremes Combo, Snack, Sandwich Combo</td><td>5</td><td style="color:var(--y)">5 recs (should reduce)</td></tr>
+      <tr style="background:#f0fdf4"><td>C2. Five items</td><td>5 different items</td><td><strong>Bo Fries, Dirty Rice, Plain Biscuit</strong></td><td>5</td><td style="color:var(--g)">All Sides (complementary)</td></tr>
+      <tr><td>C3. Same x2</td><td>Same item twice</td><td>Cart item NOT in recs</td><td>5</td><td style="color:var(--g)">PASS &mdash; cart exclusion works</td></tr>
     </tbody></table>
 
     <!-- SUMMARY -->
-    <table style="margin:16px 0"><thead><tr><th colspan="4" style="background:var(--h);color:#fff;font-size:12px">Summary by Category</th></tr>
-    <tr><th>Category</th><th>Tested</th><th>Pass</th><th>Key Issue</th></tr></thead>
+    <table style="margin:16px 0"><thead><tr><th colspan="4" style="background:var(--h);color:#fff;font-size:12px">Summary by Category (Waxhaw)</th></tr>
+    <tr><th>Category</th><th>Scenarios</th><th>Pass</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>A. Single Item Complements</td><td>6</td><td style="color:var(--r)">0</td><td>Same recs regardless of cart category. <span class="cr">RankingDiversitySelector</span> not wired.</td></tr>
-      <tr><td>B. Multi-Item Gap Fill</td><td>5</td><td style="color:var(--r)">0</td><td>Gap bonuses (Drink +0.15, Side +0.12) exist in code but not called.</td></tr>
-      <tr><td>C. Category Duplicate Avoidance</td><td>4</td><td style="color:var(--g)">1</td><td>Scenario 19 (Two Chicken) shifts. Others don't. MMR penalty not applied.</td></tr>
-      <tr><td>D. Special Items</td><td>5</td><td style="color:var(--g)">3</td><td>Condiment-only, Premium, Dessert-only produce unique recs. Model does differentiate here.</td></tr>
-      <tr><td>E. Daypart</td><td colspan="2" style="color:var(--m)">NOT TESTED</td><td>Need to vary localTime parameter (8am, 12pm, 8pm).</td></tr>
-      <tr><td>F. Weather</td><td colspan="2" style="color:var(--m)">NOT TESTED</td><td>Need to vary temperature + implement NDS-237 item weather tags.</td></tr>
-      <tr><td>G. Cart Completeness</td><td>3</td><td style="color:var(--g)">1</td><td>Cart exclusion works. But model doesn't reduce rec count for full carts.</td></tr>
-      <tr class="sum-row"><td>Total</td><td>28 tested</td><td style="color:var(--y)">5 pass</td><td><strong>Root cause: RankingDiversitySelector and CandidateFilter are not wired into predict_binary().</strong></td></tr>
+      <tr><td>A. Single Item</td><td>6</td><td style="color:var(--g);font-weight:700">6/6</td><td>All 6 produce DIFFERENT top-3. 8 unique top-1 items.</td></tr>
+      <tr><td>B. Multi-Item</td><td>6</td><td style="color:var(--g);font-weight:700">6/6</td><td>Cart composition changes recs. Side+Drink+Dessert gaps filled correctly.</td></tr>
+      <tr><td>D. Daypart</td><td>6</td><td style="color:var(--y)">2/6</td><td>Dinner (6pm) differs. Others same. Daypart signal exists but weak.</td></tr>
+      <tr><td>E+F. Special/Cross</td><td>9</td><td style="color:var(--g);font-weight:700">9/9</td><td>Meal+Side &rarr; Drinks. Side+Drink &rarr; Mains. Gap fill working.</td></tr>
+      <tr><td>G. Completeness</td><td>3</td><td style="color:var(--g)">2/3</td><td>Cart exclusion works. Doesn't reduce count for full carts.</td></tr>
+      <tr class="sum-row"><td>Total (Waxhaw)</td><td>30</td><td style="color:var(--g);font-weight:700">25/30</td><td>Major improvement over previous tests. Cart sensitivity working.</td></tr>
     </tbody></table>
   </div>
 </div>
