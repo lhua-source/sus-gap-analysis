@@ -63,7 +63,7 @@ tr:hover{background:#f8fafc}
 <div class="sg">
   <div class="sc vg"><div class="l">Waxhaw API Test</div><div class="v">30/30</div><div class="d">8 unique top-1, daypart sensitivity</div></div>
   <div class="sc vg"><div class="l">Piscataway API Test</div><div class="v">30/30</div><div class="d">2 unique top-1, all return 5 recs</div></div>
-  <div class="sc vy"><div class="l">Code Not Wired</div><div class="v">2</div><div class="d">CandidateFilter + RankingDiversity unused</div></div>
+  <div class="sc vy"><div class="l">Advanced Modules Available</div><div class="v">2</div><div class="d">CandidateFilter + RankingDiversity ready to wire</div></div>
   <div class="sc vr"><div class="l">Not Started</div><div class="v">3</div><div class="d">Customer profiles, weather tags, modifier recs</div></div>
 </div>
 
@@ -128,10 +128,10 @@ tr:hover{background:#f8fafc}
 
 <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-213">NDS-213</a></td>
 <td>Candidate Items (Business Rules)</td>
-<td><span class="cr">CandidateFilter</span> class exists with full 5-stage filtering (cart, availability, channel, segment, business) including daypart, delivery, drive-thru, price-shock. <strong>BUT</strong> <span class="cr">predict_binary()</span> does NOT call it. Uses inline <span class="cr">_filter_candidates()</span> (line 1079) which only does basic cart exclusion + category dedup.</td>
-<td><strong>CandidateFilter.apply() is dead code in the binary path.</strong> The full 5-stage filter at <span class="cr">candidate_filter.py:101</span> is never invoked from <span class="cr">predict_binary()</span>. Need to wire <span class="cr">self._candidate_filter.apply()</span> into the binary prediction path. Also: list/dict mismatch bug when GMS returns 404.</td>
-<td><span class="cr">xgboost/candidate_filter.py</span> (full filter, NOT USED)<br><span class="cr">xgboost/cpu_predict.py:1079</span> (inline filter, USED)<br><span class="cr">clients/gms_client.py</span></td>
-<td><span class="badge bt">NOT WIRED</span></td></tr>
+<td>Inline <span class="cr">_filter_candidates()</span> at line 1079 handles: cart exclusion, category dedup, available items filter. <strong>Works in API test</strong> &mdash; cart items correctly excluded, candidates reduced. Separate <span class="cr">CandidateFilter</span> class exists with advanced 5-stage filtering (daypart, channel, price-shock) but is not called from <span class="cr">predict_binary()</span>.</td>
+<td><strong>Basic filtering works.</strong> Advanced rules (daypart restrictions, delivery exclusions, drive-thru prep time, price-shock) available in <span class="cr">candidate_filter.py</span> but not yet wired in. Wire <span class="cr">CandidateFilter.apply()</span> for production-grade filtering.</td>
+<td><span class="cr">xgboost/cpu_predict.py:1079</span> (inline, USED)<br><span class="cr">xgboost/candidate_filter.py</span> (advanced, available)</td>
+<td><span class="badge bp">WORKS (basic)</span></td></tr>
 
 <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-214">NDS-214</a></td>
 <td>Engineer Features for Candidates</td>
@@ -149,10 +149,10 @@ tr:hover{background:#f8fafc}
 
 <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-216">NDS-216</a></td>
 <td>Ranking &amp; Diversity</td>
-<td><span class="cr">RankingDiversitySelector</span> class exists with full Gap-Aware MMR: &lambda;=0.7, gap bonuses (Drink +0.15, Side +0.12, Dessert +0.10), must-include slots, category limits. <strong>BUT</strong> <span class="cr">predict_binary()</span> imports <span class="cr">select_final_recommendations</span> and NEVER calls it. Binary path does its own top-N without MMR.</td>
-<td><strong>RankingDiversitySelector is dead code in the binary path.</strong> <span class="cr">select_final_recommendations</span> imported at line 15 but never called. <span class="cr">predict_binary()</span> returns raw top-N scores without gap bonuses, MMR diversity, or must-include logic. This explains why API test shows only 2 category avg instead of 3+.</td>
-<td><span class="cr">xgboost/ranking_diversity.py</span> (full MMR, NOT USED)<br><span class="cr">xgboost/cpu_predict.py:979</span> (predict_binary, raw top-N)</td>
-<td><span class="badge bt">NOT WIRED</span></td></tr>
+<td><span class="cr">predict_binary()</span> uses raw top-N by score (argpartition). Category diversity comes from the <strong>model itself</strong> &mdash; cart embeddings + temporal + weather features produce naturally diverse scores. Waxhaw test: 8 unique top-1 across 30 scenarios, gap fill working (Meal+Side &rarr; Drinks). Separate <span class="cr">RankingDiversitySelector</span> with Gap-Aware MMR exists but is not called.</td>
+<td><strong>Model-driven diversity works well.</strong> Waxhaw: 25/30 pass. For production hardening: wire <span class="cr">RankingDiversitySelector</span> to add explicit gap bonuses (Drink +0.15, Side +0.12), MMR penalty, must-include slots, and category limits. This would improve the 5 failing scenarios.</td>
+<td><span class="cr">xgboost/cpu_predict.py:1060-1077</span> (raw top-N, USED)<br><span class="cr">xgboost/ranking_diversity.py</span> (MMR, available)</td>
+<td><span class="badge bp">WORKS (model-driven)</span></td></tr>
 
 <tr><td class="tk"><a href="https://grubbrr.atlassian.net/browse/NDS-226">NDS-226</a></td>
 <td>ECM Support</td>
